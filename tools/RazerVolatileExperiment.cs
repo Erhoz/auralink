@@ -18,9 +18,9 @@ internal static class RazerVolatileExperiment
     {
         return RunFromRainbow(directory,seconds,factory,simulation,null);
     }
-    internal static int RunFromRainbow(string directory,int seconds,Func<IHidControl> factory,bool simulation,Func<RgbColor?> nextFrame,string sourceName="native HAL log",Func<object> sourceMetrics=null)
+    internal static int RunFromRainbow(string directory,int seconds,Func<IHidControl> factory,bool simulation,Func<RgbColor?> nextFrame,string sourceName="native HAL log",Func<object> sourceMetrics=null,bool continuous=false)
     {
-        if(seconds<1 || seconds>900) throw new ArgumentOutOfRangeException("seconds");
+        if(continuous ? seconds!=0 : seconds<1 || seconds>900) throw new ArgumentOutOfRangeException("seconds");
         Directory.CreateDirectory(directory);
         string journal=Path.Combine(directory,"device-operation.json");
         string stop=Path.Combine(directory,"stop-test");
@@ -38,6 +38,7 @@ internal static class RazerVolatileExperiment
             {"ModeRestored",false},{"PhysicalRgbValidated",false},{"Events",events}
         };
         report["StabilitySamples"]=samples;
+        report["ContinuousSession"]=continuous;
         Action save=()=>File.WriteAllText(journal,json.Serialize(report),new UTF8Encoding(false));
         Action<string,byte[]> note=(name,response)=> { events.Add(new { utc=DateTime.UtcNow.ToString("o"), operation=name, responseHex=BitConverter.ToString(response) }); save(); };
         bool attempted=false;
@@ -75,7 +76,8 @@ internal static class RazerVolatileExperiment
                 }
                 var clock=Stopwatch.StartNew();
                 double nextSample=30;
-                while(clock.Elapsed.TotalSeconds<seconds && !File.Exists(stop))
+                double nextJournal=0;
+                while((continuous || clock.Elapsed.TotalSeconds<seconds) && !File.Exists(stop))
                 {
                     if(nextFrame!=null)
                     {
@@ -88,7 +90,7 @@ internal static class RazerVolatileExperiment
                             report["FramesWritten"]=(int)report["FramesWritten"]+1;
                             report["LastColorRgb"]=rgb.ToString();
                             report["LastFrameUtc"]=DateTime.UtcNow.ToString("o");
-                            save();
+                            if(clock.Elapsed.TotalSeconds>=nextJournal) { save(); nextJournal=clock.Elapsed.TotalSeconds+1; }
                         }
                     }
                     if(clock.Elapsed.TotalSeconds>=nextSample)
@@ -98,11 +100,12 @@ internal static class RazerVolatileExperiment
                                 framesWritten=(int)report["FramesWritten"],workingSetBytes=process.WorkingSet64,
                                 cpuMilliseconds=(process.TotalProcessorTime-cpuBefore).TotalMilliseconds });
                         nextSample+=30;
+                        if(samples.Count>120) samples.RemoveAt(0);
                         save();
                     }
                     Thread.Sleep(50);
                 }
-                if(nextFrame!=null && !(bool)report["FrameAccepted"]) throw new IOException("No native HAL frame was applied");
+                if(!continuous && nextFrame!=null && !(bool)report["FrameAccepted"]) throw new IOException("No native HAL frame was applied");
                 report["StopReason"]=File.Exists(stop) ? "stop-file" : "duration";
             }
             catch(Exception error)

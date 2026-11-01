@@ -1,0 +1,8 @@
+AuraLink é uma integração não oficial, sem vínculo com ASUS, Razer ou Corsair. Marcas e produtos pertencem a seus respectivos titulares.
+
+Este pacote contém somente código e recursos próprios do projeto. Não redistribui SDKs, drivers, instaladores ou DLLs de ASUS, Razer ou Corsair. .NET Framework e componentes dos fabricantes são dependências externas.
+
+Fatos do protocolo USB foram investigados nos fontes públicos OpenRazer, revisão 477f4d6d3ab7e9deb6310d5bd3742560c5cbe80d (GPL-2.0-or-later). O codificador C# é original; nenhum driver Linux ou trecho desses fontes foi incorporado ao pacote.
+https://github.com/openrazer/openrazer
+
+A publicação deste beta não acrescenta uma licença de código aberto ao repositório. Os avisos existentes e os direitos dos respectivos titulares permanecem aplicáveis.

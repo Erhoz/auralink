@@ -4,7 +4,10 @@ param(
     [ValidateSet('User','Machine')][string]$Scope='User',
     [switch]$Discovery,
     [string]$AssemblyPath,
-    [ValidateSet('Headset','HeadphoneStand')][string]$DeviceType='HeadphoneStand'
+    [ValidateSet('Headset','HeadphoneStand')][string]$DeviceType='HeadphoneStand',
+    [string]$StateDirectory,
+    [string]$ProductVersion='0.1.0',
+    [string]$DisplayName='AuraLink Diagnostic'
 )
 $ErrorActionPreference='Stop'
 $classId='{9FE19BA9-9EF2-4BF2-96AC-20983C2EB1A6}'
@@ -14,6 +17,8 @@ $discoveryPath="Software\Classes\CLSID\{109DC3E4-B9FF-4AF3-9008-AB13705D4E5F}\In
 $directory=Join-Path $PSScriptRoot 'artifacts\diagnostic-hal'
 $dll=Join-Path $directory 'AuraLink.DiagnosticHal.dll'
 if($AssemblyPath){$dll=[IO.Path]::GetFullPath($AssemblyPath)}
+if($StateDirectory){$directory=[IO.Path]::GetFullPath($StateDirectory)}
+if($Action -eq 'Install'){New-Item -ItemType Directory -Path $directory -Force | Out-Null}
 $manifestPath=Join-Path $directory "registration-$Scope.json"
 $hive=if($Scope -eq 'User'){[Microsoft.Win32.RegistryHive]::CurrentUser}else{[Microsoft.Win32.RegistryHive]::LocalMachine}
 $views=@([Microsoft.Win32.RegistryView]::Registry64,[Microsoft.Win32.RegistryView]::Registry32)
@@ -28,7 +33,8 @@ if($Scope -eq 'Machine'){
     if(-not ([Security.Principal.WindowsPrincipal]$identity).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){throw 'Machine scope requires an administrator shell.'}
     if($Action -eq 'Install'){
         $protectedRoot=[IO.Path]::GetFullPath((Join-Path $env:ProgramFiles 'AuraLink\DiagnosticHal'))+[IO.Path]::DirectorySeparatorChar
-        if(-not $dll.StartsWith($protectedRoot,[StringComparison]::OrdinalIgnoreCase)){throw 'Machine registration requires a protected AuraLink installation. Use Start-ArmouryDiagnostic.ps1.'}
+        $appRoot=[IO.Path]::GetFullPath((Join-Path $env:ProgramFiles 'AuraLink\App'))+[IO.Path]::DirectorySeparatorChar
+        if(-not $dll.StartsWith($protectedRoot,[StringComparison]::OrdinalIgnoreCase) -and -not $dll.StartsWith($appRoot,[StringComparison]::OrdinalIgnoreCase)){throw 'Machine registration requires a protected AuraLink installation.'}
     }
 }
 if($Action -eq 'Remove'){
@@ -89,7 +95,7 @@ try{
                             $server.SetValue('RuntimeVersion','v4.0.30319');$server.SetValue('CodeBase',$codeBase)
                         }finally{$server.Dispose()}
                     }else{
-                        foreach($pair in @(@('Name','AuraLink Diagnostic'),@('Description','Unofficial diagnostic sink; no hardware'),@('Manufacturer','AuraLink'),@('SpecVersion','1.0.0'),@('Version','0.1.0'),@('DeviceType',$DeviceType))){$key.SetValue($pair[0],$pair[1])}
+                        foreach($pair in @(@('Name',$DisplayName),@('Description','Unofficial AuraLink provider'),@('Manufacturer','AuraLink'),@('SpecVersion','1.0.0'),@('Version',$ProductVersion),@('DeviceType',$DeviceType))){$key.SetValue($pair[0],$pair[1])}
                         $key.SetValue('Pluging',0,[Microsoft.Win32.RegistryValueKind]::DWord)
                     }
                 }finally{$key.Dispose()}

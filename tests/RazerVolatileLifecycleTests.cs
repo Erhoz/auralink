@@ -144,5 +144,10 @@ internal static class RazerVolatileLifecycleTests
                 throw new Exception("Unknown reconnect mode was modified");
         }
         Console.WriteLine("{\"usbReconnectAdapterTestsPassed\":3,\"usb\":\"simulated\",\"hardwareAccess\":false}");
+        var continuous=new Fake { Directory=Path.Combine(suite,"continuous-stop") };
+        if(RazerVolatileExperiment.RunFromRainbow(continuous.Directory,0,()=>continuous,true,()=>new RgbColor(1,2,3),"continuous simulated session",null,true)!=0 ||
+            continuous.Mode!=0 || continuous.RainbowWrites!=1 || !(bool)Read(continuous.Directory)["ContinuousSession"] || !continuous.Disposed)
+            throw new Exception("Continuous stop did not restore/dispose");
+        Console.WriteLine("{\"continuousSessionStopTestPassed\":true,\"hardwareAccess\":false}");
     }
 }

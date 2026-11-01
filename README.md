@@ -1,10 +1,22 @@
 # AuraLink
 
-Investigação de uma integração **não oficial**, sem vínculo com ASUS, Razer ou Corsair, para apresentar dispositivos RGB externos ao Aura Sync do Armoury Crate.
+Integração **não oficial**, sem vínculo com ASUS, Razer ou Corsair, para apresentar dispositivos RGB externos ao Aura Sync do Armoury Crate.
+
+## 1.0.0-beta.1 para Windows x64
+
+[Baixar o beta](https://github.com/Erhoz/auralink/releases/tag/v1.0.0-beta.1) · [Notas da versão](docs/releases/1.0.0-beta.1.md) · [Changelog](CHANGELOG.md)
+
+O primeiro dispositivo é o **Razer Base Station Chroma original `1532:0F08`**. Requer Armoury Crate funcionando, .NET Framework 4.8 e driver Razer já instalado. O pacote não contém componentes dos fabricantes e não habilita inicialização automática.
+
+Instale, feche o Razer Chroma e abra AuraLink pelo menu Iniciar. Clique em **Iniciar**, aceite o UAC e reabra Aura Sync para selecionar o suporte. **Parar** ou fechar a janela encerra a sessão e recupera um arco-íris conhecido; **Recuperar** atende uma sessão interrompida. Para remover, pare a sessão e use Aplicativos do Windows.
+
+O instalador não tem assinatura digital; compare seu SHA-256 com a release. O backend foi validado no hardware antes do empacotamento. Interface, instalador e sessão contínua são novos neste beta e não receberam outra rodada de hardware nem instalação/desinstalação real. Veja [construção e publicação](docs/publicacao.md) para reproduzir os artefatos.
+
+## Evidências e investigação
 
 **Prova de conceito nativa validada no hardware:** o suporte aparece no Aura Sync como HeadphoneStand e a [ligação Armoury → HAL → USB](docs/aura-usb-primeiro-ciclo.md) já reproduziu vermelho, verde e azul corretos no Razer, confirmados pelo usuário após corrigir a ordem dos canais. A animação também acompanhou em ensaio anterior, com os demais dispositivos funcionando. O teste é temporário e limitado; seu registro foi removido ao terminar. Ainda não é uma integração para uso contínuo.
 
-A etapa atual substitui o JSONL por um [canal local de frames](docs/canal-frames.md), com coalescência, identidade do processo servidor e timeout. **Cores, animação e recuperação foram confirmadas visualmente pelo novo canal.** A [rodada final](docs/ensaios-finais.md) também passou: dez minutos com 7.668 frames e uma desconexão/reconexão USB com retomada, mantendo os demais dispositivos funcionando. A fase de testes solicitada foi encerrada. O runner usa pipe por padrão, duração configurável de até 900 segundos e recuperação USB opt-in; não há inicialização automática ou configuração para uso contínuo habilitada. O driver Razer permanece instalado.
+A etapa atual substitui o JSONL por um [canal local de frames](docs/canal-frames.md), com coalescência, identidade do processo servidor e timeout. **Cores, animação e recuperação foram confirmadas visualmente pelo novo canal.** A [rodada final](docs/ensaios-finais.md) também passou: dez minutos com 7.668 frames e uma desconexão/reconexão USB com retomada, mantendo os demais dispositivos funcionando. A fase de testes físicos solicitada foi encerrada. O runner de investigação continua limitado a 900 segundos; o aplicativo beta usa sessão contínua manual com parada e recuperação. O driver Razer permanece instalado.
 
 Leia o [resultado da etapa 3](docs/armoury-etapa3.md), incluindo correção de ativação nativa, regressões e recuperação. A criação de uma categoria própria na interface também permanece não comprovada.
 
@@ -14,7 +26,7 @@ Para a implementação atual, consulte o [contrato HAL e os testes](docs/hal-con
 
 Leia a [avaliação de viabilidade](docs/viabilidade.md) e as [evidências da primeira execução](docs/evidence/2026-11-01.json).
 
-## Executar
+## Ferramentas de investigação
 
 Windows, PowerShell x64. O modo padrão consulta registro, arquivos, serviços e dispositivos presentes:
 

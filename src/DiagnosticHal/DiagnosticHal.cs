@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using AuraLink.Core;
 
-[assembly: AssemblyVersion("0.1.0.0")]
 [assembly: ComVisible(false)]
 
 namespace AuraLink.DiagnosticHal
@@ -77,7 +76,11 @@ namespace AuraLink.DiagnosticHal
         private readonly DiagnosticDevice device;
         public DiagnosticHal()
         {
+#if AURALINK_RELEASE
+            sink = new JsonLineSink(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),"AuraLink","Runtime","hal-logs"));
+#else
             sink = new JsonLineSink(Path.Combine(Path.GetDirectoryName(typeof(DiagnosticHal).Assembly.Location), "logs"));
+#endif
             if(Publisher.Value!=null) sink=new BestEffortSink(sink);
             device = new DiagnosticDevice(sink,Publisher.Value);
             sink.Record("Activated", new { classId = typeof(DiagnosticHal).GUID.ToString(), diagnostic = true, frameChannel=Publisher.Value!=null ? "pipe-v1" : "diagnostic-only" });
