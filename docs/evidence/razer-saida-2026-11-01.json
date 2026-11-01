@@ -1,0 +1,197 @@
+{
+  "SchemaVersion": 1,
+  "RecordedUtc": "2026-11-01T19:13:49.6033660Z",
+  "Target": {
+    "Vid": "1532",
+    "Pid": "0F08",
+    "Model": "Razer Base Station Chroma original"
+  },
+  "PhysicalStaticRedConfirmedByUser": true,
+  "ReleaseThenOffConfirmedByUser": true,
+  "FullAuraToPhysicalIntegrationProven": false,
+  "HeadphoneStandCategoryProven": true,
+  "SharedChromaEndpoint": "mousepad",
+  "AppEngineAbsentSdkOnlyPhysicalSuccess": false,
+  "SdkOnlyUserObservation": "Continuou na iluminacao padrao",
+  "SdkOnlyAppEngineCountAtStart": 0,
+  "FinalAppEngineCount": 0,
+  "Installer": {
+    "DownloadedOnly": true,
+    "Executed": false,
+    "SourcePage": "https://www.razer.com/chroma",
+    "SourceLink": "https://rzr.to/chroma-download",
+    "FinalUrl": "https://dl.razerzone.com/drivers/Chroma/RazerChromaInstaller.exe",
+    "FileVersion": "2.6.0.890",
+    "ProductName": "Razer Installer",
+    "Bytes": 14923464,
+    "SHA256": "E4EABF1A0CF030B773A1A14ED22F4CB337C5F85638863260215B6315D83EB570",
+    "SignatureStatus": "Valid",
+    "Signer": "CN=Razer USA Ltd., O=Razer USA Ltd., L=Irvine, S=California, C=US"
+  },
+  "ApiVersion": "4.01.00",
+  "SdkRegistryProductVersion": "4.1.0.10151444",
+  "CompatibilityDllVersion": "3.8.0.238",
+  "ChromaPackageVersion": "4.0.896",
+  "AxonPackageObserved": "2.11.1.0",
+  "FrontendUninstalled": false,
+  "ServicesPermanentlyDisabled": false,
+  "HostComparison": {
+    "Ip127": "HTTP 400",
+    "Localhost": "HTTP 200"
+  },
+  "StaticMapping": {
+    "PidDecimal": 3848,
+    "Mapping": "mousemat",
+    "Module": "599D24BA-A24B-4AAB-98F1-41264CCCDF27.dll",
+    "PhysicalLedPositions": 15
+  },
+  "Tests": [
+    {
+      "Artifact": "chroma-static-red.json",
+      "RecordedUtc": "2026-11-01T15:56:15.822191-03:00",
+      "ApiAccepted": true,
+      "ReleaseConfirmed": true,
+      "SecondsLimit": 3,
+      "ColorWrites": null,
+      "Heartbeats": null,
+      "StopReason": null,
+      "AutomaticHardwareValidatedFlag": false
+    },
+    {
+      "Artifact": "chroma-static-red-8s.json",
+      "RecordedUtc": "2026-11-01T15:57:22.791104-03:00",
+      "ApiAccepted": true,
+      "ReleaseConfirmed": true,
+      "SecondsLimit": 8,
+      "ColorWrites": null,
+      "Heartbeats": null,
+      "StopReason": null,
+      "AutomaticHardwareValidatedFlag": false
+    },
+    {
+      "Artifact": "chroma-red-hold.json",
+      "RecordedUtc": "2026-11-01T15:59:25.098978-03:00",
+      "ApiAccepted": true,
+      "ReleaseConfirmed": true,
+      "SecondsLimit": 180,
+      "ColorWrites": null,
+      "Heartbeats": 25,
+      "StopReason": "stop-file",
+      "AutomaticHardwareValidatedFlag": false
+    },
+    {
+      "Artifact": "chroma-red-reassert.json",
+      "RecordedUtc": "2026-11-01T16:01:47.656696-03:00",
+      "ApiAccepted": true,
+      "ReleaseConfirmed": true,
+      "SecondsLimit": 180,
+      "ColorWrites": 71,
+      "Heartbeats": 70,
+      "StopReason": "stop-file",
+      "AutomaticHardwareValidatedFlag": false
+    },
+    {
+      "Artifact": "chroma-red-without-ui.json",
+      "RecordedUtc": "2026-11-01T16:05:37.273616-03:00",
+      "ApiAccepted": true,
+      "ReleaseConfirmed": true,
+      "SecondsLimit": 180,
+      "ColorWrites": 49,
+      "Heartbeats": 48,
+      "StopReason": "stop-file",
+      "AutomaticHardwareValidatedFlag": false
+    },
+    {
+      "Artifact": "chroma-red-sdk-only.json",
+      "RecordedUtc": "2026-11-01T16:08:17.500369-03:00",
+      "ApiAccepted": true,
+      "ReleaseConfirmed": true,
+      "SecondsLimit": 180,
+      "ColorWrites": 34,
+      "Heartbeats": 33,
+      "StopReason": "stop-file",
+      "AutomaticHardwareValidatedFlag": false
+    }
+  ],
+  "OwnSdkLogSelection": [
+    "2026-11-01,15:56:18:273,INFO,,[ChromaSDK]Access state = 1",
+    "2026-11-01,15:56:20:727,INFO,,[SDKClient] uninit via DELETE, closing session | uri = http://localhost:63081/chromasdk",
+    "2026-11-01,15:56:20:730,INFO,,[ChromaSDK]CChromaSDK::UnInit return 0",
+    "2026-11-01,15:57:25:188,INFO,,[ChromaSDK]Access state = 1",
+    "2026-11-01,15:57:32:644,INFO,,[SDKClient] uninit via DELETE, closing session | uri = http://localhost:51948/chromasdk",
+    "2026-11-01,15:57:32:648,INFO,,[ChromaSDK]CChromaSDK::UnInit return 0",
+    "2026-11-01,15:59:27:547,INFO,,[ChromaSDK]Access state = 1",
+    "2026-11-01,15:59:53:061,INFO,,[SDKClient] uninit via DELETE, closing session | uri = http://localhost:57308/chromasdk",
+    "2026-11-01,15:59:53:064,INFO,,[ChromaSDK]CChromaSDK::UnInit return 0",
+    "2026-11-01,16:01:49:097,INFO,,[ChromaSDK]ProcessId = 33688, ActivePID = 0, SynapseOnline = 0, Access = 0",
+    "2026-11-01,16:01:49:109,INFO,,[ChromaSDK]ProcessId = 33688, ActivePID = 33688, SynapseOnline = 0, Access = 0",
+    "2026-11-01,16:01:50:110,INFO,,[ChromaSDK]ProcessId = 33688, ActivePID = 33688, SynapseOnline = 1, Access = 0",
+    "2026-11-01,16:01:50:111,INFO,,[ChromaSDK]Access state = 1",
+    "2026-11-01,16:03:02:026,INFO,,[SDKClient] uninit via DELETE, closing session | uri = http://localhost:62786/chromasdk",
+    "2026-11-01,16:03:02:029,INFO,,[ChromaSDK]CChromaSDK::UnInit return 0",
+    "2026-11-01,16:05:39:740,INFO,,[ChromaSDK]Access state = 1",
+    "2026-11-01,16:06:29:212,INFO,,[SDKClient] uninit via DELETE, closing session | uri = http://localhost:53549/chromasdk",
+    "2026-11-01,16:06:29:216,INFO,,[ChromaSDK]CChromaSDK::UnInit return 0",
+    "2026-11-01,16:08:18:910,INFO,,[ChromaSDK]ProcessId = 27860, ActivePID = 0, SynapseOnline = 0, Access = 0",
+    "2026-11-01,16:08:18:918,DEBUG,ChromaSDK.cpp (7939),[ChromaSDK] UpdateAppState called from MonitorSynapseEventNotification(FALSE)",
+    "2026-11-01,16:08:18:920,INFO,,[ChromaSDK]ProcessId = 27860, ActivePID = 27860, SynapseOnline = 0, Access = 0",
+    "2026-11-01,16:08:18:923,INFO,,[ChromaSDK]ProcessId = 27860, ActivePID = 27860, SynapseOnline = 0, Access = 0",
+    "2026-11-01,16:08:54:361,INFO,,[SDKClient] uninit via DELETE, closing session | uri = http://localhost:54376/chromasdk",
+    "2026-11-01,16:08:54:365,INFO,,[ChromaSDK]CChromaSDK::UnInit return 0"
+  ],
+  "FinalRazerServices": [
+    {
+      "Name": "RzActionSvc",
+      "State": "Running",
+      "StartMode": "Auto"
+    },
+    {
+      "Name": "Razer Elevation Service",
+      "State": "Running",
+      "StartMode": "Manual"
+    },
+    {
+      "Name": "Razer Chroma Stream Server",
+      "State": "Stopped",
+      "StartMode": "Manual"
+    },
+    {
+      "Name": "Razer Chroma SDK Service",
+      "State": "Running",
+      "StartMode": "Auto"
+    },
+    {
+      "Name": "Razer Chroma SDK Server",
+      "State": "Running",
+      "StartMode": "Auto"
+    },
+    {
+      "Name": "Razer Chroma SDK Diagnostic Service",
+      "State": "Running",
+      "StartMode": "Auto"
+    },
+    {
+      "Name": "RazerExperienceService",
+      "State": "Running",
+      "StartMode": "Auto"
+    },
+    {
+      "Name": "RGS",
+      "State": "Running",
+      "StartMode": "Auto"
+    },
+    {
+      "Name": "Razer Game Manager Service 3",
+      "State": "Running",
+      "StartMode": "Auto"
+    }
+  ],
+  "Limitations": [
+    "No full Aura-to-Razer forwarding implemented.",
+    "SDK-only failure applies to this installed runtime and REST route.",
+    "No independent Core reinstall package preserved.",
+    "Original lighting profile cannot be read/restored exactly by the prototype.",
+    "Global category endpoint, not per-USB addressing.",
+    "No individual-LED mapping or Aura raw-color conversion validated."
+  ]
+}

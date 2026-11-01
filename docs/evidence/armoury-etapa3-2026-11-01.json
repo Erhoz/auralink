@@ -1,0 +1,237 @@
+{
+  "SchemaVersion": 1,
+  "RecordedUtc": "2026-11-01T18:10:52.2128482Z",
+  "NativeIntegrationProven": false,
+  "ServiceAcceptanceProven": true,
+  "ArmouryUiDeviceObserved": false,
+  "ArmouryEffectDeliveredToAuraLink": false,
+  "RazerOutputImplemented": false,
+  "ClassId": "9FE19BA9-9EF2-4BF2-96AC-20983C2EB1A6",
+  "DiscoveryX64": true,
+  "DiscoveryX86": true,
+  "NativeHostSpacesBefore": {
+    "processBits": 64,
+    "clrPreloadedByClient": false,
+    "activations": [
+      {
+        "iid": "00000000-0000-0000-C000-000000000046",
+        "hresult": "0x80070002",
+        "pointerReturned": false
+      },
+      {
+        "iid": "F2C8D5B4-3854-4325-8A4F-FD7C5072E3B9",
+        "hresult": "0x80070002",
+        "pointerReturned": false
+      }
+    ],
+    "hardwareOutput": false
+  },
+  "NativeHostSpacesAfter": {
+    "processBits": 64,
+    "clrPreloadedByClient": false,
+    "activations": [
+      {
+        "iid": "00000000-0000-0000-C000-000000000046",
+        "hresult": "0x00000000",
+        "pointerReturned": true
+      },
+      {
+        "iid": "F2C8D5B4-3854-4325-8A4F-FD7C5072E3B9",
+        "hresult": "0x00000000",
+        "pointerReturned": true
+      }
+    ],
+    "hardwareOutput": false
+  },
+  "ServiceEvidence": [
+    {
+      "Process": "LightingService",
+      "ProcessId": 43108,
+      "DeviceType": 593920,
+      "AssemblyHash": "15E4164DEAA8822517015AAFBAE01A409EE025292A857F11ACF417A7D30D8B09",
+      "Events": [
+        {
+          "timestampUtc": "2026-11-01T17:36:38.273552Z",
+          "processId": 43108,
+          "process": "LightingService",
+          "operation": "Activated",
+          "data": {
+            "classId": "9fe19ba9-9ef2-4bf2-96ac-20983c2eb1a6",
+            "diagnostic": true
+          },
+          "hardwareOutput": false
+        },
+        {
+          "timestampUtc": "2026-11-01T17:36:38.3158386Z",
+          "processId": 43108,
+          "process": "LightingService",
+          "operation": "Enumerate",
+          "data": {
+            "capacity": 0,
+            "countOnly": true
+          },
+          "hardwareOutput": false
+        },
+        {
+          "timestampUtc": "2026-11-01T17:36:38.3213484Z",
+          "processId": 43108,
+          "process": "LightingService",
+          "operation": "Enumerate",
+          "data": {
+            "capacity": 1,
+            "countOnly": false
+          },
+          "hardwareOutput": false
+        },
+        {
+          "timestampUtc": "2026-11-01T17:36:38.3273522Z",
+          "processId": 43108,
+          "process": "LightingService",
+          "operation": "GetCapability",
+          "data": {
+            "returned": true
+          },
+          "hardwareOutput": false
+        }
+      ],
+      "SetEffectCount": 0
+    },
+    {
+      "Process": "LightingService",
+      "ProcessId": 26132,
+      "DeviceType": 262144,
+      "AssemblyHash": "DECDD07B43EAF69785A0199BE9712D76E44A7C3215F0E5CD224C72B356ACE41B",
+      "Events": [
+        {
+          "timestampUtc": "2026-11-01T17:54:35.3356841Z",
+          "processId": 26132,
+          "process": "LightingService",
+          "operation": "Activated",
+          "data": {
+            "classId": "9fe19ba9-9ef2-4bf2-96ac-20983c2eb1a6",
+            "diagnostic": true
+          },
+          "hardwareOutput": false
+        },
+        {
+          "timestampUtc": "2026-11-01T17:54:35.3889803Z",
+          "processId": 26132,
+          "process": "LightingService",
+          "operation": "Enumerate",
+          "data": {
+            "capacity": 0,
+            "countOnly": true
+          },
+          "hardwareOutput": false
+        },
+        {
+          "timestampUtc": "2026-11-01T17:54:35.395922Z",
+          "processId": 26132,
+          "process": "LightingService",
+          "operation": "Enumerate",
+          "data": {
+            "capacity": 1,
+            "countOnly": false
+          },
+          "hardwareOutput": false
+        },
+        {
+          "timestampUtc": "2026-11-01T17:54:35.4026509Z",
+          "processId": 26132,
+          "process": "LightingService",
+          "operation": "GetCapability",
+          "data": {
+            "returned": true
+          },
+          "hardwareOutput": false
+        }
+      ],
+      "SetEffectCount": 0
+    }
+  ],
+  "RemovedProbeHelpers": [
+    {
+      "Name": "Aac3572MbHal_x86.exe",
+      "ProcessId": 33692,
+      "SessionId": 1,
+      "CreationDate": "2026-11-01T13:23:34.071384-03:00",
+      "ExecutablePath": "C:\\Program Files\\ASUS\\AacMB\\Aac3572MbHal_x86.exe"
+    },
+    {
+      "Name": "AacKingstonDramHal_x64.exe",
+      "ProcessId": 3772,
+      "SessionId": 1,
+      "CreationDate": "2026-11-01T13:23:34.227206-03:00",
+      "ExecutablePath": "C:\\Program Files\\ASUS\\KINGSTON_Aac_DRAM\\AacKingstonDramHal_x64.exe"
+    },
+    {
+      "Name": "Aac3572DramHal_x64.exe",
+      "ProcessId": 13712,
+      "SessionId": 1,
+      "CreationDate": "2026-11-01T13:23:34.56392-03:00",
+      "ExecutablePath": "C:\\Program Files\\ASUS\\ASUS_Aac_DRAM\\Aac3572DramHal_x64.exe"
+    }
+  ],
+  "CorsairModulesRecovered": 4,
+  "UserConfirmedCorsairRestored": true,
+  "UserConfirmedArgbCoolersRestored": true,
+  "RegistryFinalChecks": [
+    {
+      "Hive": "CurrentUser",
+      "View": "Registry32",
+      "ClassPresent": false,
+      "DiscoveryPresent": false
+    },
+    {
+      "Hive": "CurrentUser",
+      "View": "Registry64",
+      "ClassPresent": false,
+      "DiscoveryPresent": false
+    },
+    {
+      "Hive": "LocalMachine",
+      "View": "Registry32",
+      "ClassPresent": false,
+      "DiscoveryPresent": false
+    },
+    {
+      "Hive": "LocalMachine",
+      "View": "Registry64",
+      "ClassPresent": false,
+      "DiscoveryPresent": false
+    }
+  ],
+  "ProtectedOwnFilesRetained": true,
+  "LightingServiceRestarts": 4,
+  "ComputerRestarted": false,
+  "StartupConfigurationChanged": false,
+  "UiBridge": {
+    "Publisher": "ASUSTeK COMPUTER INC.",
+    "AuthenticodeStatus": "Valid",
+    "FileVersion": "6.7.3.0",
+    "FilesModified": false
+  },
+  "FinalServices": [
+    {
+      "Name": "ArmouryCrateService",
+      "Status": "Running",
+      "StartType": "Automatic"
+    },
+    {
+      "Name": "CorsairDeviceControlService",
+      "Status": "Running",
+      "StartType": "Manual"
+    },
+    {
+      "Name": "LightingService",
+      "Status": "Running",
+      "StartType": "Automatic"
+    }
+  ],
+  "OpenQuestions": [
+    "UI inclusion and selection rules",
+    "New UI category extension",
+    "Specific cause of ARGB regression",
+    "Effect delivery from Armoury to own HAL"
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "SchemaVersion": 1,
+  "TimestampUtc": "2026-11-01T17:08:15.4329353Z",
+  "ClassId": "9FE19BA9-9EF2-4BF2-96AC-20983C2EB1A6",
+  "NativeIntegrationProven": false,
+  "ArmouryUiValidated": false,
+  "Tests": [
+    {
+      "Architecture": "x64",
+      "Mode": "native",
+      "Result": {
+        "passed": true,
+        "processBits": 64,
+        "nativeVtable": true,
+        "registryActivation": true,
+        "syntheticEffect": true,
+        "hardwareOutput": false,
+        "nativeIntegrationProven": false
+      },
+      "SetEffectCallbacks": 1
+    },
+    {
+      "Architecture": "x64",
+      "Mode": "sdk",
+      "Result": {
+        "metadataPassed": true,
+        "processBits": 64,
+        "sdkParsedDevice": "AuraLink Diagnostic (no hardware)",
+        "type": 593920,
+        "ledCount": 1,
+        "effectCount": 2,
+        "effectIds": [
+          0,
+          1
+        ],
+        "width": 1,
+        "height": 1,
+        "applyCallReturnedSuccess": true,
+        "effectDeliveryVerified": false,
+        "targetOnly": true,
+        "acquiredControl": false,
+        "armouryUiValidated": false,
+        "nativeIntegrationProven": false
+      },
+      "SetEffectCallbacks": 0
+    },
+    {
+      "Architecture": "x86",
+      "Mode": "native",
+      "Result": {
+        "passed": true,
+        "processBits": 32,
+        "nativeVtable": true,
+        "registryActivation": true,
+        "syntheticEffect": true,
+        "hardwareOutput": false,
+        "nativeIntegrationProven": false
+      },
+      "SetEffectCallbacks": 1
+    },
+    {
+      "Architecture": "x86",
+      "Mode": "sdk",
+      "Result": {
+        "metadataPassed": true,
+        "processBits": 32,
+        "sdkParsedDevice": "AuraLink Diagnostic (no hardware)",
+        "type": 593920,
+        "ledCount": 1,
+        "effectCount": 2,
+        "effectIds": [
+          0,
+          1
+        ],
+        "width": 1,
+        "height": 1,
+        "applyCallReturnedSuccess": true,
+        "effectDeliveryVerified": false,
+        "targetOnly": true,
+        "acquiredControl": false,
+        "armouryUiValidated": false,
+        "nativeIntegrationProven": false
+      },
+      "SetEffectCallbacks": 0
+    }
+  ],
+  "CollisionRefused": true,
+  "ForeignOwnerRemovalRefused": true,
+  "TemporaryRegistrationRemoved": true,
+  "MachineRegistrationAttempted": false,
+  "DiscoveryRegistrationAttempted": false,
+  "HardwareOutput": false,
+  "AssemblySHA256": "40E1F821A3CC4CFBFC3B1CDBD4804159CD9241DFC18303E70C816FC2B25267FB",
+  "CompilerFileVersion": "14.8.10001.0 built by: bd501acdc000004",
+  "AuraSdkVersions": [
+    {
+      "File": "AuraSdk_x64.dll",
+      "Version": "3.08.01.0"
+    },
+    {
+      "File": "AuraSdk_x86.dll",
+      "Version": "3.08.01.0"
+    }
+  ],
+  "OptionalAnalysisDependencies": {
+    "pefile": "2024.8.26",
+    "capstone": "5.0.9"
+  },
+  "VendorInvestigation": {
+    "PhysicalLedStateObserved": false,
+    "CorsairSlot4IdentifiedAsCppDestructor": true,
+    "GlobalEnumerationRootCauseFullyEstablished": false,
+    "CorsairServiceSideEffectsObservedInLogs": true,
+    "CorsairEnumerateV1Count": 0,
+    "CorsairEnumerateV1HResult": 0
+  },
+  "ServicesAfter": [
+    {
+      "Name": "ArmouryCrateService",
+      "Status": "Running"
+    },
+    {
+      "Name": "CorsairDeviceControlService",
+      "Status": "Stopped"
+    },
+    {
+      "Name": "LightingService",
+      "Status": "Running"
+    }
+  ]
+}

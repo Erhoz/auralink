@@ -22,7 +22,9 @@ $runtimeResults = @()
 if ($Runtime) {
     # Each COM operation runs in a disposable child process. A blocked vendor call
     # cannot keep this command alive indefinitely. No service process is killed.
-    foreach ($script in @('Read-CorsairHal','Read-AuraDevices')) {
+    # Global SDK enumeration was retired from this runner: it can leave separate
+    # vendor COM servers alive after the client exits and disrupt DRAM discovery.
+    foreach ($script in @('Read-CorsairHal')) {
         $scriptPath = Join-Path $PSScriptRoot "tools\$script.ps1"
         $jsonPath = Join-Path $OutputDirectory "$script.json"
         $stdout = Join-Path $OutputDirectory "$script.stdout.txt"
@@ -47,7 +49,12 @@ if ($Runtime) {
 }
 $report = [ordered]@{
     SchemaVersion=1; TimestampUtc=[DateTime]::UtcNow.ToString('o'); PowerShell=$PSVersionTable.PSVersion.ToString()
-    ProcessBits=64; AcquiredLightingControl=$false; NativeIntegrationProven=$false
+    ProcessBits=64; CalledSwitchMode=$false
+    # A vendor COM constructor can acquire backend control without SwitchMode.
+    # The Corsair service logs observed during investigation establish this risk.
+    AcquiredLightingControl=$(if($Runtime){$null}else{$false})
+    VendorRuntimeSideEffectsPossible=[bool]$Runtime; NativeIntegrationProven=$false
+    GlobalProviderScanAttempted=$false
     ServicesBefore=$services
     ServicesAfter=@(Get-Service -Name ArmouryCrateService,LightingService,CorsairDeviceControlService -ErrorAction SilentlyContinue | ForEach-Object { [pscustomobject]@{Name=$_.Name; Status=[string]$_.Status} })
     Software=$software; Evidence=$evidence; Runtime=$runtimeResults

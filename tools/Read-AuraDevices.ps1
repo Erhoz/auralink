@@ -1,10 +1,11 @@
 [CmdletBinding()]
-param([string]$OutputPath)
+param([string]$OutputPath,[switch]$AllowGlobalHardwareEnumeration)
 $ErrorActionPreference = 'Stop'
+if(-not $AllowGlobalHardwareEnumeration){throw 'Global provider enumeration is disabled by default: it left vendor helper processes alive during investigation. Use the targeted Diagnostic HAL tests.'}
 if (-not $OutputPath) { $OutputPath = Join-Path $PSScriptRoot '..\artifacts\aura-devices.json' }
 $sdk = $null
 $devices = $null
-$report = [ordered]@{ TimestampUtc = [DateTime]::UtcNow.ToString('o'); AcquiredControl = $false; Devices = @(); Error = $null }
+$report = [ordered]@{ TimestampUtc = [DateTime]::UtcNow.ToString('o'); CalledSwitchMode = $false; AcquiredControl = $null; Devices = @(); Error = $null }
 try {
     $sdk = [Activator]::CreateInstance([type]::GetTypeFromCLSID([guid]'05921124-5057-483e-a037-e9497b523590', $true))
     # Deliberately never call SwitchMode, Apply, setters, or ReleaseControl.

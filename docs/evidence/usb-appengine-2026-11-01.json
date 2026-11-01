@@ -1,0 +1,359 @@
+{
+  "SchemaVersion": 1,
+  "RecordedUtc": "2026-11-01T19:34:09.6751282Z",
+  "UsbTransportValidatedOnHardware": true,
+  "UsbDirectRgbValidated": false,
+  "AppEngineModuleHostingValidated": false,
+  "OriginalModel": {
+    "VID": "1532",
+    "PID": "0F08",
+    "FeatureReportBytes": 91,
+    "Interface": "MI_00",
+    "UsagePage": 1,
+    "Usage": 2
+  },
+  "LogicalState": {
+    "Mode": [
+      0,
+      0
+    ],
+    "FirmwareBytes": [
+      1,
+      0
+    ],
+    "Brightness": null,
+    "SnapshotComplete": false
+  },
+  "Operation": {
+    "StartedUtc": "2026-11-01T19:25:32.0061821Z",
+    "Completed": true,
+    "Error": null,
+    "LightingCommandsSent": 0,
+    "Stopped": [
+      "Razer Chroma SDK Server",
+      "Razer Chroma SDK Service"
+    ],
+    "Restored": [
+      "Razer Chroma SDK Service",
+      "Razer Chroma SDK Server"
+    ],
+    "Before": [
+      {
+        "Name": "Razer Chroma SDK Service",
+        "State": "Running",
+        "StartMode": "Auto",
+        "ProcessId": 8976
+      },
+      {
+        "Name": "Razer Chroma SDK Server",
+        "State": "Running",
+        "StartMode": "Auto",
+        "ProcessId": 27788
+      }
+    ],
+    "QueryResult": {
+      "logicalReadQueries": 4,
+      "transportValidated": true,
+      "snapshotComplete": false,
+      "mode": [
+        0,
+        0
+      ],
+      "firmware": [
+        1,
+        0
+      ],
+      "brightness": null,
+      "lightingCommandsSent": 0,
+      "hardwareOutput": false,
+      "queries": [
+        {
+          "name": "mode",
+          "outcome": "read",
+          "status": 2,
+          "arguments": [
+            0,
+            0
+          ],
+          "requestHex": "00-00-FF-00-00-00-02-00-84-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-86-00",
+          "responseHex": "00-02-FF-00-00-00-02-00-84-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-86-00"
+        },
+        {
+          "name": "firmware",
+          "outcome": "read",
+          "status": 2,
+          "arguments": [
+            1,
+            0
+          ],
+          "requestHex": "00-00-FF-00-00-00-02-00-81-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-83-00",
+          "responseHex": "00-02-FF-00-00-00-02-00-81-01-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-82-00"
+        },
+        {
+          "name": "brightness",
+          "outcome": "not-supported",
+          "status": 5,
+          "requestHex": "00-00-FF-00-00-00-03-03-83-01-05-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-87-00",
+          "responseHex": "00-05-FF-00-00-00-03-03-83-01-05-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-87-00"
+        },
+        {
+          "name": "brightness-extended",
+          "outcome": "device-failed",
+          "status": 3,
+          "requestHex": "00-00-3F-00-00-00-03-0F-84-01-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-89-00",
+          "responseHex": "00-03-3F-00-00-00-03-0F-84-01-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-89-00"
+        }
+      ]
+    },
+    "IsolationMaintained": true,
+    "After": [
+      {
+        "Name": "Razer Chroma SDK Service",
+        "State": "Running",
+        "StartMode": "Auto",
+        "ProcessId": 45528
+      },
+      {
+        "Name": "Razer Chroma SDK Server",
+        "State": "Running",
+        "StartMode": "Auto",
+        "ProcessId": 47032
+      }
+    ],
+    "FinishedUtc": "2026-11-01T19:25:34.0414405Z"
+  },
+  "ExecutedProbeSHA256": "20A69C273A3163A692AA60438491F462A2AEBFB0633A942F8B4B8B6E86A38B35",
+  "DriverStack": [
+    {
+      "Node": "USB",
+      "Key": "DEVPKEY_Device_Service",
+      "Value": "HidUsb"
+    },
+    {
+      "Node": "USB",
+      "Key": "DEVPKEY_Device_DriverProvider",
+      "Value": "Microsoft"
+    },
+    {
+      "Node": "USB",
+      "Key": "DEVPKEY_Device_DriverInfPath",
+      "Value": "input.inf"
+    },
+    {
+      "Node": "USB",
+      "Key": "DEVPKEY_Device_UpperFilters",
+      "Value": null
+    },
+    {
+      "Node": "USB",
+      "Key": "DEVPKEY_Device_LowerFilters",
+      "Value": null
+    },
+    {
+      "Node": "HID",
+      "Key": "DEVPKEY_Device_Service",
+      "Value": "mouhid"
+    },
+    {
+      "Node": "HID",
+      "Key": "DEVPKEY_Device_DriverProvider",
+      "Value": "Razer Inc"
+    },
+    {
+      "Node": "HID",
+      "Key": "DEVPKEY_Device_DriverInfPath",
+      "Value": "oem121.inf"
+    },
+    {
+      "Node": "HID",
+      "Key": "DEVPKEY_Device_UpperFilters",
+      "Value": [
+        "RzDev_0f08"
+      ]
+    },
+    {
+      "Node": "HID",
+      "Key": "DEVPKEY_Device_LowerFilters",
+      "Value": null
+    }
+  ],
+  "DriverIndependenceProven": false,
+  "ProxyInspection": [
+    {
+      "name": "RzChromaSDKProxy_v1.2.4.10151518.dll",
+      "exports": [
+        {
+          "name": "AddDevice",
+          "rva": "0x36aa0"
+        },
+        {
+          "name": "FreeMalloc",
+          "rva": "0x38920"
+        },
+        {
+          "name": "Init",
+          "rva": "0x368a0"
+        },
+        {
+          "name": "Invoke",
+          "rva": "0x36ab0"
+        },
+        {
+          "name": "PollEvents",
+          "rva": "0x382e0"
+        },
+        {
+          "name": "RemoveDevice",
+          "rva": "0x37ab0"
+        },
+        {
+          "name": "RzChromaSDKProxy",
+          "rva": "0x387c0"
+        },
+        {
+          "name": "RzChromaSDKProxyNoReturn",
+          "rva": "0x38890"
+        },
+        {
+          "name": "SetAllocator",
+          "rva": "0x37c40"
+        },
+        {
+          "name": "SetNodeFFIEvent",
+          "rva": "0x37c10"
+        },
+        {
+          "name": "SetOperatingMode",
+          "rva": "0x381c0"
+        },
+        {
+          "name": "UnInit",
+          "rva": "0x369e0"
+        },
+        {
+          "name": "UsePollingMode",
+          "rva": "0x382d0"
+        }
+      ],
+      "imports": [
+        "KERNEL32.dll",
+        "ADVAPI32.dll",
+        "ole32.dll",
+        "SHLWAPI.dll",
+        "MSVCP140.dll",
+        "CONCRT140.dll",
+        "VCRUNTIME140_1.dll",
+        "VCRUNTIME140.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll"
+      ]
+    },
+    {
+      "name": "chroma_native_sdk_v1.6.0.0.dll",
+      "exports": [
+        {
+          "name": "FreeMalloc",
+          "rva": "0x37f60"
+        },
+        {
+          "name": "GetChromaSDKVersion",
+          "rva": "0x37a00"
+        },
+        {
+          "name": "GetDLLVersion",
+          "rva": "0x379c0"
+        },
+        {
+          "name": "Init",
+          "rva": "0x37b20"
+        },
+        {
+          "name": "JsonApi",
+          "rva": "0x37f70"
+        },
+        {
+          "name": "JsonApiNoReturn",
+          "rva": "0x38040"
+        },
+        {
+          "name": "Terminate",
+          "rva": "0x37f40"
+        }
+      ],
+      "imports": [
+        "VERSION.dll",
+        "RPCRT4.dll",
+        "KERNEL32.dll",
+        "SHELL32.dll",
+        "MSVCP140.dll",
+        "VCRUNTIME140.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-convert-l1-1-0.dll"
+      ]
+    }
+  ],
+  "ProxySHA256": "60aaacba2b0683eff9bc9cca6b1d68a0fcae926d25dba0b9cf87d5970d434195",
+  "VendorModulesLoadedByOurProbe": false,
+  "AppEngineProcessCount": 0,
+  "HidCollectionCount": 7,
+  "WindowsHidMetadataValidated": true,
+  "Source": {
+    "Repository": "openrazer/openrazer",
+    "Commit": "477f4d6d3ab7e9deb6310d5bd3742560c5cbe80d",
+    "DriverLicense": "GPL-2.0-or-later",
+    "KernelDriverCopiedIntoProject": false
+  },
+  "FinalServices": [
+    {
+      "Name": "ArmouryCrateService",
+      "State": "Running",
+      "StartMode": "Auto",
+      "ProcessId": 12444
+    },
+    {
+      "Name": "CorsairDeviceControlService",
+      "State": "Running",
+      "StartMode": "Manual",
+      "ProcessId": 46348
+    },
+    {
+      "Name": "LightingService",
+      "State": "Running",
+      "StartMode": "Auto",
+      "ProcessId": 8784
+    },
+    {
+      "Name": "Razer Chroma SDK Service",
+      "State": "Running",
+      "StartMode": "Auto",
+      "ProcessId": 45528
+    },
+    {
+      "Name": "Razer Chroma SDK Server",
+      "State": "Running",
+      "StartMode": "Auto",
+      "ProcessId": 47032
+    }
+  ],
+  "Limitations": [
+    "Read-only logical commands; RGB output not implemented.",
+    "Brightness commands returned status 5 and 3; no brightness inferred.",
+    "RzDev_0f08 upper filter remains installed.",
+    "No custom host for proprietary AppEngine modules was executed.",
+    "Original lighting effect/profile was not read in full."
+  ]
+}

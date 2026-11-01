@@ -1,0 +1,341 @@
+{
+  "SchemaVersion": 1,
+  "RecordedUtc": "2026-11-01T18:50:46.3680289Z",
+  "Category": "HeadphoneStand",
+  "HalType": "0x41000",
+  "UiInternalType": "0x02000000",
+  "ProfileIndex": 23,
+  "StaticMapNameRva": "0x33c7",
+  "StaticMapTypeRva": "0x33d2",
+  "StaticServiceSHA256": "638D037DB804D3A60E2577E5CB9567429AACD0F167204604EB8B8988BF526139",
+  "ArmouryUiConfirmedByUser": true,
+  "ArmouryEffectReceptionProven": true,
+  "HardwareOutput": false,
+  "PhysicalRazerValidated": false,
+  "UserObservation": "Aparece como suporte; selecionado e efeitos trocados; suporte fisico nao mudou.",
+  "SdkAndNativeTests": {
+    "TimestampUtc": "2026-11-01T18:40:55.4641543Z",
+    "Tests": [
+      {
+        "Architecture": "x64",
+        "Mode": "native",
+        "Result": {
+          "passed": true,
+          "processBits": 64,
+          "nativeVtable": true,
+          "registryActivation": true,
+          "syntheticEffect": true,
+          "hardwareOutput": false,
+          "nativeIntegrationProven": false
+        },
+        "SetEffectCallbacks": 1,
+        "LogFile": "C:\\Dev\\auralink\\artifacts\\diagnostic-hal\\logs\\events-42908.jsonl"
+      },
+      {
+        "Architecture": "x64",
+        "Mode": "sdk",
+        "Result": {
+          "metadataPassed": true,
+          "processBits": 64,
+          "sdkParsedDevice": "AuraLink Diagnostic (no hardware)",
+          "type": 266240,
+          "ledCount": 1,
+          "effectCount": 2,
+          "effectIds": [
+            0,
+            1
+          ],
+          "allEffectsSynchronizable": true,
+          "width": 1,
+          "height": 1,
+          "applyCallReturnedSuccess": true,
+          "effectDeliveryVerified": false,
+          "targetOnly": true,
+          "acquiredControl": false,
+          "armouryUiValidated": false,
+          "nativeIntegrationProven": false
+        },
+        "SetEffectCallbacks": 0,
+        "LogFile": "C:\\Dev\\auralink\\artifacts\\diagnostic-hal\\logs\\events-5368.jsonl"
+      },
+      {
+        "Architecture": "x86",
+        "Mode": "native",
+        "Result": {
+          "passed": true,
+          "processBits": 32,
+          "nativeVtable": true,
+          "registryActivation": true,
+          "syntheticEffect": true,
+          "hardwareOutput": false,
+          "nativeIntegrationProven": false
+        },
+        "SetEffectCallbacks": 1,
+        "LogFile": "C:\\Dev\\auralink\\artifacts\\diagnostic-hal\\logs\\events-21384.jsonl"
+      },
+      {
+        "Architecture": "x86",
+        "Mode": "sdk",
+        "Result": {
+          "metadataPassed": true,
+          "processBits": 32,
+          "sdkParsedDevice": "AuraLink Diagnostic (no hardware)",
+          "type": 266240,
+          "ledCount": 1,
+          "effectCount": 2,
+          "effectIds": [
+            0,
+            1
+          ],
+          "allEffectsSynchronizable": true,
+          "width": 1,
+          "height": 1,
+          "applyCallReturnedSuccess": true,
+          "effectDeliveryVerified": false,
+          "targetOnly": true,
+          "acquiredControl": false,
+          "armouryUiValidated": false,
+          "nativeIntegrationProven": false
+        },
+        "SetEffectCallbacks": 0,
+        "LogFile": "C:\\Dev\\auralink\\artifacts\\diagnostic-hal\\logs\\events-15372.jsonl"
+      }
+    ],
+    "CollisionRefused": true,
+    "ForeignOwnerRemovalRefused": true,
+    "TemporaryRegistrationRemoved": true,
+    "Failure": null,
+    "CleanupFailure": null,
+    "MachineRegistrationAttempted": false,
+    "DiscoveryRegistrationAttempted": false,
+    "HardwareOutput": false,
+    "ArmouryUiValidated": false,
+    "NativeIntegrationProven": false
+  },
+  "Begin": {
+    "Action": "Begin",
+    "Variant": "HeadphoneStand",
+    "StartedUtc": "2026-11-01T18:42:00.8876862Z",
+    "Completed": true,
+    "Error": null,
+    "Events": [
+      {
+        "Utc": "2026-11-01T18:42:01.4686406Z",
+        "Operation": "Stopping ArmouryCrateService"
+      },
+      {
+        "Utc": "2026-11-01T18:42:05.1567014Z",
+        "Operation": "Stopped ArmouryCrateService"
+      },
+      {
+        "Utc": "2026-11-01T18:42:05.1602014Z",
+        "Operation": "Stopping LightingService"
+      },
+      {
+        "Utc": "2026-11-01T18:42:05.4223095Z",
+        "Operation": "Stopped LightingService"
+      },
+      {
+        "Utc": "2026-11-01T18:42:05.4253088Z",
+        "Operation": "Using protected diagnostic HAL: HeadphoneStand"
+      },
+      {
+        "Utc": "2026-11-01T18:42:05.7937866Z",
+        "Operation": "Running LightingService"
+      },
+      {
+        "Utc": "2026-11-01T18:42:06.3667604Z",
+        "Operation": "Running ArmouryCrateService"
+      }
+    ],
+    "HardwareOutput": false,
+    "NativeIntegrationProven": false,
+    "Before": [
+      {
+        "Name": "ArmouryCrateService",
+        "State": "Running",
+        "StartMode": "Auto",
+        "ProcessId": 16476
+      },
+      {
+        "Name": "CorsairDeviceControlService",
+        "State": "Running",
+        "StartMode": "Manual",
+        "ProcessId": 47688
+      },
+      {
+        "Name": "LightingService",
+        "State": "Running",
+        "StartMode": "Auto",
+        "ProcessId": 8720
+      }
+    ],
+    "AssemblyPath": "C:\\Program Files\\AuraLink\\DiagnosticHal\\v0.1-0becfd6f1e28ded4\\AuraLink.DiagnosticHal.dll",
+    "AssemblyHash": "0BECFD6F1E28DED4BE79E0C83BBF76A389CE62149D0257A428B1A65BF0731F33",
+    "ProfileSnapshot": "C:\\Dev\\auralink\\artifacts\\headphonestand-test\\LastProfile-before.xml",
+    "After": [
+      {
+        "Name": "ArmouryCrateService",
+        "State": "Running",
+        "StartMode": "Auto",
+        "ProcessId": 35980
+      },
+      {
+        "Name": "CorsairDeviceControlService",
+        "State": "Stopped",
+        "StartMode": "Manual",
+        "ProcessId": 0
+      },
+      {
+        "Name": "LightingService",
+        "State": "Running",
+        "StartMode": "Auto",
+        "ProcessId": 30704
+      }
+    ],
+    "FinishedUtc": "2026-11-01T18:42:06.8739047Z"
+  },
+  "End": {
+    "Action": "End",
+    "Variant": "HeadphoneStand",
+    "StartedUtc": "2026-11-01T18:46:46.6904773Z",
+    "Completed": true,
+    "Error": null,
+    "Events": [
+      {
+        "Utc": "2026-11-01T18:46:47.1774067Z",
+        "Operation": "Stopping ArmouryCrateService"
+      },
+      {
+        "Utc": "2026-11-01T18:46:50.2446155Z",
+        "Operation": "Stopped ArmouryCrateService"
+      },
+      {
+        "Utc": "2026-11-01T18:46:50.248129Z",
+        "Operation": "Stopping LightingService"
+      },
+      {
+        "Utc": "2026-11-01T18:46:50.510562Z",
+        "Operation": "Stopped LightingService"
+      },
+      {
+        "Utc": "2026-11-01T18:46:50.5725563Z",
+        "Operation": "Removed diagnostic HAL registration"
+      },
+      {
+        "Utc": "2026-11-01T18:46:50.6615571Z",
+        "Operation": "Running LightingService"
+      },
+      {
+        "Utc": "2026-11-01T18:46:51.2235416Z",
+        "Operation": "Running ArmouryCrateService"
+      }
+    ],
+    "HardwareOutput": false,
+    "NativeIntegrationProven": false,
+    "Before": [
+      {
+        "Name": "ArmouryCrateService",
+        "State": "Running",
+        "StartMode": "Auto",
+        "ProcessId": 35980
+      },
+      {
+        "Name": "CorsairDeviceControlService",
+        "State": "Running",
+        "StartMode": "Manual",
+        "ProcessId": 4736
+      },
+      {
+        "Name": "LightingService",
+        "State": "Running",
+        "StartMode": "Auto",
+        "ProcessId": 30704
+      }
+    ],
+    "After": [
+      {
+        "Name": "ArmouryCrateService",
+        "State": "Running",
+        "StartMode": "Auto",
+        "ProcessId": 12444
+      },
+      {
+        "Name": "CorsairDeviceControlService",
+        "State": "Running",
+        "StartMode": "Manual",
+        "ProcessId": 4736
+      },
+      {
+        "Name": "LightingService",
+        "State": "Running",
+        "StartMode": "Auto",
+        "ProcessId": 8784
+      }
+    ],
+    "FinishedUtc": "2026-11-01T18:46:51.6484497Z"
+  },
+  "Effects": {
+    "Calls": 121,
+    "FirstUtc": "2026-11-01T18:45:33.9446817Z",
+    "LastUtc": "2026-11-01T18:45:50.8928616Z",
+    "EffectIds": [
+      255,
+      0,
+      1
+    ],
+    "DistinctRawColors": 70,
+    "SourceProcessId": 30704,
+    "LogSHA256": "16F705BC11403DBC7011FAB5C9D85A0E6D434968A811CDB3C3394FAEE10723A3"
+  },
+  "FinalRegistry": [
+    {
+      "Hive": "LocalMachine",
+      "View": "Registry32",
+      "Path": "Software\\Classes\\CLSID\\{9FE19BA9-9EF2-4BF2-96AC-20983C2EB1A6}",
+      "Present": false
+    },
+    {
+      "Hive": "LocalMachine",
+      "View": "Registry32",
+      "Path": "Software\\Classes\\CLSID\\{109DC3E4-B9FF-4AF3-9008-AB13705D4E5F}\\Instance\\{E9BBD754-6CF4-492E-BA89-782177A2771B}\\Instance\\{9FE19BA9-9EF2-4BF2-96AC-20983C2EB1A6}",
+      "Present": false
+    },
+    {
+      "Hive": "LocalMachine",
+      "View": "Registry64",
+      "Path": "Software\\Classes\\CLSID\\{9FE19BA9-9EF2-4BF2-96AC-20983C2EB1A6}",
+      "Present": false
+    },
+    {
+      "Hive": "LocalMachine",
+      "View": "Registry64",
+      "Path": "Software\\Classes\\CLSID\\{109DC3E4-B9FF-4AF3-9008-AB13705D4E5F}\\Instance\\{E9BBD754-6CF4-492E-BA89-782177A2771B}\\Instance\\{9FE19BA9-9EF2-4BF2-96AC-20983C2EB1A6}",
+      "Present": false
+    },
+    {
+      "Hive": "CurrentUser",
+      "View": "Registry32",
+      "Path": "Software\\Classes\\CLSID\\{9FE19BA9-9EF2-4BF2-96AC-20983C2EB1A6}",
+      "Present": false
+    },
+    {
+      "Hive": "CurrentUser",
+      "View": "Registry32",
+      "Path": "Software\\Classes\\CLSID\\{109DC3E4-B9FF-4AF3-9008-AB13705D4E5F}\\Instance\\{E9BBD754-6CF4-492E-BA89-782177A2771B}\\Instance\\{9FE19BA9-9EF2-4BF2-96AC-20983C2EB1A6}",
+      "Present": false
+    },
+    {
+      "Hive": "CurrentUser",
+      "View": "Registry64",
+      "Path": "Software\\Classes\\CLSID\\{9FE19BA9-9EF2-4BF2-96AC-20983C2EB1A6}",
+      "Present": false
+    },
+    {
+      "Hive": "CurrentUser",
+      "View": "Registry64",
+      "Path": "Software\\Classes\\CLSID\\{109DC3E4-B9FF-4AF3-9008-AB13705D4E5F}\\Instance\\{E9BBD754-6CF4-492E-BA89-782177A2771B}\\Instance\\{9FE19BA9-9EF2-4BF2-96AC-20983C2EB1A6}",
+      "Present": false
+    }
+  ]
+}

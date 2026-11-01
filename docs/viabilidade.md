@@ -1,5 +1,7 @@
 # Avaliação inicial — 1 de novembro de 2026
 
+> Registro histórico da primeira entrega. A [investigação do contrato](hal-contrato.md) corrigiu a suposição de ABI Corsair e a interpretação dos efeitos indiretos de sua ativação. Posteriormente, o [ensaio de renovação da lista](aura-cache-ensaio.md) comprovou o cartão de diagnóstico na interface e a recepção de efeitos reais no HAL próprio. A saída física Razer permanece pendente.
+
 ## Conclusão
 
 A integração nativa é **plausível pelo mecanismo HAL, mas ainda não demonstrada para um provedor independente**. Há evidência local de registro e ativação COM do plugin Corsair. Falta validar o contrato do provedor, o formato de capacidades e a aceitação de um HAL AuraLink pelo LightingService e pela interface do Armoury Crate. O SDK público de controle não resolve essas etapas.

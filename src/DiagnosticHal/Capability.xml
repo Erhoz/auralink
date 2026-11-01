@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <version>1</version>
+  <type>266240</type>
+  <device>
+    <name>AuraLink Diagnostic (no hardware)</name>
+    <id>0</id>
+    <manufacturer>AuraLink unofficial</manufacturer>
+    <layout>
+      <led_count>1</led_count>
+      <size><width>1</width><height>1</height></size>
+      <led_name><led>AuraLink Diagnostic LED 0</led></led_name>
+    </layout>
+    <supported_effect>
+      <effect>
+        <name>Manual</name><id>0</id><synchronizable>1</synchronizable>
+        <customized_color>1</customized_color>
+        <speed_supported>0</speed_supported>
+        <direction_supported>0</direction_supported>
+      </effect>
+      <effect>
+        <name>Static</name><id>1</id><synchronizable>1</synchronizable>
+        <customized_color>1</customized_color>
+        <speed_supported>0</speed_supported>
+        <direction_supported>0</direction_supported>
+      </effect>
+    </supported_effect>
+  </device>
+</root>
