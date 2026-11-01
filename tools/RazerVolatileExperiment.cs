@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Web.Script.Serialization;
 using AuraLink.Adapters.Razer;
+using AuraLink.Core;
 
 internal static class RazerVolatileExperiment
 {
@@ -15,6 +16,10 @@ internal static class RazerVolatileExperiment
     }
     internal static int RunFromRainbow(string directory,int seconds,Func<IHidControl> factory,bool simulation)
     {
+        return RunFromRainbow(directory,seconds,factory,simulation,null);
+    }
+    internal static int RunFromRainbow(string directory,int seconds,Func<IHidControl> factory,bool simulation,Func<RgbColor?> nextFrame)
+    {
         if(seconds<1 || seconds>300) throw new ArgumentOutOfRangeException("seconds");
         Directory.CreateDirectory(directory);
         string journal=Path.Combine(directory,"device-operation.json");
@@ -22,9 +27,10 @@ internal static class RazerVolatileExperiment
         var json=new JavaScriptSerializer();
         var events=new List<object>();
         var report=new Dictionary<string,object> {
-            {"StartedUtc",DateTime.UtcNow.ToString("o")},{"Completed",false},{"ColorRgb","FF0000"},
+            {"StartedUtc",DateTime.UtcNow.ToString("o")},{"Completed",false},{"ColorRgb",nextFrame==null ? "FF0000" : null},
             {"MaximumSeconds",seconds},{"ModeChangeAttempted",false},{"FrameAccepted",false},
             {"Simulation",simulation},
+            {"Source",nextFrame==null ? "red diagnostic" : "native HAL log"},{"FramesWritten",0},
             {"RecoveryEffect","rainbow-wave"},{"RecoveryEffectAccepted",false},
             {"BaselineSource","explicit caller declaration; effect is not readable"},
             {"PhysicalRestorationValidated",false},
@@ -52,17 +58,38 @@ internal static class RazerVolatileExperiment
                 note("VerifySoftwareMode",software);
                 if(software[9]!=3 || software[10]!=0) throw new InvalidOperationException("Software mode was not confirmed");
                 note("SelectVolatileCustom",session.Exchange(VolatileFrameProtocol.SelectCustom(),true));
-                note("Write15LedRedFrame",session.Exchange(VolatileFrameProtocol.SolidFrame(255,0,0),true));
-                report["FrameAccepted"]=true;
+                if(nextFrame==null)
+                {
+                    note("Write15LedRedFrame",session.Exchange(VolatileFrameProtocol.SolidFrame(255,0,0),true));
+                    report["FrameAccepted"]=true; report["FramesWritten"]=1;
+                }
                 report["Active"]=true;
                 save();
                 if(!simulation)
                 {
-                    Console.WriteLine("{\"status\":\"active\",\"transport\":\"USB HID\",\"colorRgb\":\"FF0000\"}");
+                    Console.WriteLine(json.Serialize(new { status="active",transport="USB HID",source=report["Source"] }));
                     Console.Out.Flush();
                 }
                 var clock=Stopwatch.StartNew();
-                while(clock.Elapsed.TotalSeconds<seconds && !File.Exists(stop)) Thread.Sleep(100);
+                while(clock.Elapsed.TotalSeconds<seconds && !File.Exists(stop))
+                {
+                    if(nextFrame!=null)
+                    {
+                        RgbColor? color=nextFrame();
+                        if(color.HasValue)
+                        {
+                            var rgb=color.Value;
+                            session.Exchange(VolatileFrameProtocol.SolidFrame(rgb.Red,rgb.Green,rgb.Blue),true);
+                            report["FrameAccepted"]=true;
+                            report["FramesWritten"]=(int)report["FramesWritten"]+1;
+                            report["LastColorRgb"]=rgb.ToString();
+                            report["LastFrameUtc"]=DateTime.UtcNow.ToString("o");
+                            save();
+                        }
+                    }
+                    Thread.Sleep(50);
+                }
+                if(nextFrame!=null && !(bool)report["FrameAccepted"]) throw new IOException("No native HAL frame was applied");
                 report["StopReason"]=File.Exists(stop) ? "stop-file" : "duration";
             }
             catch(Exception error)

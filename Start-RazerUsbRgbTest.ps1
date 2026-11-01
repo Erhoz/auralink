@@ -1,7 +1,8 @@
 [CmdletBinding()]
-param([ValidateRange(1,300)][int]$Seconds=180,[switch]$RestoreRainbow,[switch]$RainbowBaseline)
+param([ValidateRange(1,300)][int]$Seconds=180,[switch]$RestoreRainbow,[switch]$RainbowBaseline,[switch]$NativeHal)
 $ErrorActionPreference='Stop'
 if(-not $RestoreRainbow -and -not $RainbowBaseline){throw 'Declare the known rainbow baseline with -RainbowBaseline; arbitrary prior effects cannot be restored.'}
+if($RestoreRainbow -and $NativeHal){throw 'Recovery and native HAL modes are mutually exclusive.'}
 & (Join-Path $PSScriptRoot 'Read-RazerHid.ps1') | Out-Null
 $exe=Join-Path $PSScriptRoot 'artifacts\usb-investigation\AuraLink.RazerHidProbe.exe'
 & $exe --lifecycle-tests (Join-Path $PSScriptRoot 'artifacts\usb-rgb-tests')
@@ -14,6 +15,7 @@ $engine=Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
 $argsText='-NoProfile -NonInteractive -File "{0}" -RunDirectory "{1}" -Seconds {2} -ExpectedProbeHash {3}' -f $helper,$run,$Seconds,(Get-FileHash -LiteralPath $exe).Hash
 if($RestoreRainbow){$argsText+=' -RestoreRainbow'}
 else{$argsText+=' -RainbowBaseline'}
+if($NativeHal){$argsText+=' -NativeHal'}
 $process=Start-Process -FilePath $engine -Verb RunAs -ArgumentList $argsText -WindowStyle Hidden -PassThru
 $null=$process.Handle
 try{

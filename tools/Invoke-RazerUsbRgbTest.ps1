@@ -2,7 +2,7 @@
 param([Parameter(Mandatory=$true)][string]$RunDirectory,
       [ValidateRange(1,300)][int]$Seconds=180,
       [Parameter(Mandatory=$true)][ValidatePattern('^[a-fA-F0-9]{64}$')][string]$ExpectedProbeHash,
-      [switch]$RestoreRainbow,[switch]$RainbowBaseline)
+      [switch]$RestoreRainbow,[switch]$RainbowBaseline,[switch]$NativeHal)
 $ErrorActionPreference='Stop'
 if(-not $RestoreRainbow -and -not $RainbowBaseline){throw 'Known rainbow baseline required.'}
 $repo=Split-Path -Parent $PSScriptRoot
@@ -12,6 +12,13 @@ if(-not $RunDirectory.StartsWith($root,[StringComparison]::OrdinalIgnoreCase)){t
 $exe=Join-Path $repo 'artifacts\usb-investigation\AuraLink.RazerHidProbe.exe'
 $names=@('Razer Chroma SDK Server','Razer Chroma SDK Service')
 $before=@()
+$nativeOwned=$false
+$cacheBegun=$false
+$nativeLog=$null
+$lightingProcessId=0
+$manifest=Join-Path $repo 'artifacts\diagnostic-hal\registration-Machine.json'
+$cacheStage=Join-Path $repo 'artifacts\headphonestand-test'
+$register=Join-Path $repo 'Register-DiagnosticHal.ps1'
 $report=[ordered]@{StartedUtc=[DateTime]::UtcNow.ToString('o');Completed=$false;Error=$null;ProbeSHA256=$ExpectedProbeHash;RunDirectory=$RunDirectory;Stopped=@();Restored=@()}
 function Save-Report {$report | ConvertTo-Json -Depth 14 | Set-Content (Join-Path $RunDirectory 'operation.json') -Encoding UTF8}
 function Invoke-Probe([string]$Arguments,[string]$Label,[int]$Timeout){
@@ -25,11 +32,40 @@ function Invoke-Probe([string]$Arguments,[string]$Label,[int]$Timeout){
         return $process.ExitCode
     }finally{if(-not $process.HasExited){$process.Kill();$process.WaitForExit()};$process.Dispose()}
 }
+function Invoke-CachePhase([string]$Phase){
+    $engine=Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
+    $helper=Join-Path $PSScriptRoot 'Invoke-ArmouryCacheTest.ps1'
+    # Existing helper snapshots ASUS/Corsair, refreshes both consumers and owns removal.
+    & $engine -NoProfile -NonInteractive -File $helper -Action $Phase -Variant HeadphoneStand
+    if($LASTEXITCODE -ne 0){throw "Native cache phase $Phase failed."}
+    $phaseReport=Get-Content (Join-Path $cacheStage ($Phase+'.json')) -Raw | ConvertFrom-Json
+    $report["Native$Phase"]=$phaseReport
+    if(-not $phaseReport.Completed){throw "Native cache phase $Phase incomplete."}
+}
 try{
     $identity=[Security.Principal.WindowsIdentity]::GetCurrent()
     if(-not ([Security.Principal.WindowsPrincipal]$identity).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){throw 'Administrator token required for SDK isolation.'}
     if((Get-FileHash -LiteralPath $exe).Hash -ne $ExpectedProbeHash){throw 'Probe hash changed.'}
     if(@(Get-Process RazerAppEngine -ErrorAction SilentlyContinue).Count){throw 'AppEngine must be closed.'}
+    if($NativeHal){
+        if($RestoreRainbow){throw 'Native HAL cannot run in recovery mode.'}
+        if((Test-Path -LiteralPath $manifest) -or (Test-Path -LiteralPath (Join-Path $cacheStage 'session.json'))){throw 'Existing HAL registration/session; end it before a native test.'}
+        $installation=Get-Content (Join-Path $cacheStage 'installation.json') -Raw | ConvertFrom-Json
+        $dll=[IO.Path]::GetFullPath((Join-Path $installation.InstallDirectory 'AuraLink.DiagnosticHal.dll'))
+        $protectedRoot=[IO.Path]::GetFullPath((Join-Path $env:ProgramFiles 'AuraLink\DiagnosticHal'))+'\'
+        if(-not $installation.Completed -or -not $dll.StartsWith($protectedRoot,[StringComparison]::OrdinalIgnoreCase) -or (Get-FileHash -LiteralPath $dll).Hash -ne $installation.AssemblyHash){throw 'Previously validated protected HeadphoneStand HAL is required.'}
+        foreach($name in @('ArmouryCrateService','LightingService')){if((Get-Service $name).Status -ne 'Running'){throw "$name must be running."}}
+        $report.NativeInstallationHash=$installation.AssemblyHash
+        $nativeOwned=$true
+        & $register -Action Install -Scope Machine -Discovery -AssemblyPath $dll -DeviceType HeadphoneStand | Out-Null
+        Invoke-CachePhase 'Begin'
+        $cacheBegun=$true
+        $lightingProcessId=(Get-CimInstance Win32_Service -Filter "Name='LightingService'").ProcessId
+        $nativeLog=Join-Path (Join-Path (Split-Path -Parent $dll) 'logs') ('events-'+$lightingProcessId+'.jsonl')
+        if(-not(Test-Path -LiteralPath $nativeLog)){throw 'Real LightingService did not create its HAL log.'}
+        $report.NativeSource=@{Path=$nativeLog;ProcessId=$lightingProcessId;ColorOrderHypothesis='AABBGGRR';SingleColorReplicatedToLeds=15}
+        Save-Report
+    }
     $before=@(Get-CimInstance Win32_Service | Where-Object {$_.Name -in $names} | Select-Object Name,State,StartMode,ProcessId)
     $report.Before=$before
     Save-Report
@@ -44,6 +80,7 @@ try{
         }finally{$service.Dispose()}
     }
     $probeArguments=if($RestoreRainbow){'--restore-rainbow'}else{'--rgb-from-rainbow "{0}" {1}' -f $RunDirectory,$Seconds}
+    if($NativeHal){$probeArguments='--native-from-rainbow "{0}" {1} "{2}" {3}' -f $RunDirectory,$Seconds,$nativeLog,$lightingProcessId}
     $exitCode=Invoke-Probe $probeArguments 'rgb' ($Seconds+20)
     if($RestoreRainbow){$report.RainbowRecovery=Get-Content (Join-Path $RunDirectory 'rgb.stdout.txt') -Raw | ConvertFrom-Json}
     $report.ProbeExitCode=$exitCode
@@ -82,6 +119,17 @@ finally{
             }catch{$report["RestoreError_$name"]=$_.Exception.Message;$report.Completed=$false}
             finally{$service.Dispose()}
         }
+    }
+    if($nativeOwned){
+        try{
+            if($cacheBegun -or ((Test-Path -LiteralPath (Join-Path $cacheStage 'session.json')) -and (Test-Path -LiteralPath $manifest))){
+                Invoke-CachePhase 'End'
+            }elseif(Test-Path -LiteralPath $manifest){
+                & $register -Action Remove -Scope Machine | Out-Null
+            }
+            if(Test-Path -LiteralPath $manifest){throw 'Native HAL registration remains.'}
+            $report.NativeRegistrationRemoved=$true
+        }catch{$report.NativeCleanupError=$_.Exception.ToString();$report.Completed=$false}
     }
     $report.After=@(Get-CimInstance Win32_Service | Where-Object {$_.Name -in $names} | Select-Object Name,State,StartMode,ProcessId)
     $report.FinishedUtc=[DateTime]::UtcNow.ToString('o')

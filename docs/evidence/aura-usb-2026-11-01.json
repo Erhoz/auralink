@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-01",
+  "source": "AuraLink HeadphoneStand HAL SetEffect from real LightingService",
+  "target": "Razer Base Station Chroma 1532:0F08, 15 LEDs replicated",
+  "nativeHalSha256": "0BECFD6F1E28DED4BE79E0C83BBF76A389CE62149D0257A428B1A65BF0731F33",
+  "initialRun": {
+    "run": "20261101-195549-927",
+    "result": "aborted by inappropriate 30-second idle timeout; removed for static effects",
+    "physicalSuccessClaimed": false,
+    "nativeRegistrationRemoved": true
+  },
+  "invertedChannelsRun": {
+    "run": "20261101-195652-291",
+    "probeSha256": "132A229464196384B69CA592F97D5A7C1DB8DE7BFA73132B722F4C0C5D6DC408",
+    "lightingServicePid": 50948,
+    "framesWritten": 376,
+    "interpretation": "AARRGGBB",
+    "userCorrection": "na verdade no vermelho ficou azul",
+    "colorFidelityProven": false,
+    "animationAndOtherDevicesUserObservation": "Base acompanha e os demais continuam funcionando",
+    "technicalCompletion": true,
+    "normalModeRestored": true,
+    "rainbowRecoveryCommandAccepted": true,
+    "sdkServicesRestored": true,
+    "nativeRegistrationRemoved": true
+  },
+  "currentConversion": "AABBGGRR; red in low byte",
+  "correctedColorFidelityPhysicallyValidated": true,
+  "correctedChannelsRun": {
+    "run": "20261101-195944-626",
+    "probeSha256": "F4240F8EFAAC509DE95E066A784DEA6734FA6CEE8247E5EE40E39EBB753243AC",
+    "lightingServicePid": 49184,
+    "framesWritten": 357,
+    "interpretation": "AABBGGRR",
+    "primaryColorsUserObservation": "Agora vermelho, verde e azul estão corretos",
+    "technicalCompletion": true,
+    "stopReason": "stop-file",
+    "normalModeRestored": true,
+    "rainbowRecoveryCommandAccepted": true,
+    "sdkServicesRestored": true,
+    "nativeRegistrationRemoved": true,
+    "cleanupError": null,
+    "physicalPostCleanupUserObservation": "Sim, arco-íris voltou e os demais funcionam",
+    "physicalRainbowRecoveryConfirmed": true,
+    "otherDevicesStillWorkingAfterCleanup": true,
+    "finalServices": {
+      "LightingService": "Running/Auto",
+      "ArmouryCrateService": "Running/Auto",
+      "CorsairDeviceControlService": "Running/Manual",
+      "Razer Chroma SDK Server": "Running/Auto",
+      "Razer Chroma SDK Service": "Running/Auto"
+    }
+  },
+  "automatedTests": { "lifecycle": 5, "nativeBridge": 5, "existingPython": 8 },
+  "limitations": [
+    "RzDev_0f08 filter still installed",
+    "One logical Aura LED replicated to 15 physical LEDs",
+    "Temporary JSONL IPC, not a production transport",
+    "No Synchronize timestamp scheduling",
+    "No arbitrary previous effect/profile recovery",
+    "No unattended startup or persistent AuraLink HAL registration enabled"
+  ]
+}

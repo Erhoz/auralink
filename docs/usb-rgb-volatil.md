@@ -18,7 +18,7 @@ No primeiro ensaio (`20261101-194223-970`), o usuário confirmou vermelho. O ret
 
 O usuário informou que usava arco-íris. A recuperação explícita (`20261101-194615-568`) enviou modo normal e arco-íris volátil; os comandos foram aceitos e o usuário confirmou: “arcoires voltou”. Os serviços SDK também foram restaurados. A confirmação visual fica separada do JSON automático, que não consegue observar LEDs.
 
-O runner foi corrigido para repetir essa sequência no finally e na recuperação independente do helper. Cinco testes simulados passaram: encerramento normal, falha no frame, falha no modo de recuperação, modo inicial ocupado e falha no comando arco-íris. A sequência corrigida completa ainda não foi repetida em um novo ensaio físico; seus comandos de recuperação foram validados fisicamente no ensaio separado. Não há promessa de recuperar velocidade, direção, fase ou perfis arbitrários anteriores: o efeito completo não é legível pela sonda atual.
+O runner foi corrigido para repetir essa sequência no finally e na recuperação independente do helper. Cinco testes simulados passaram: encerramento normal, falha no frame, falha no modo de recuperação, modo inicial ocupado e falha no comando arco-íris. No novo ensaio físico `20261101-195140-769`, o usuário confirmou “vermelho ativo”; após a parada por arquivo, confirmou “Voltou ao arco-íris”. O ciclo corrigido está, portanto, validado fisicamente. Não há promessa de recuperar velocidade, direção, fase ou perfis arbitrários anteriores: o efeito completo não é legível pela sonda atual.
 
 ## Executar e encerrar
 
@@ -52,4 +52,4 @@ powershell.exe -NoProfile -File .\Read-RazerHid.ps1
 
 ## Próximo passo
 
-Repetir o ciclo corrigido e confirmar visualmente sua recuperação automática. Depois conectar os frames recebidos pelo HAL à saída USB, mantendo adaptadores separados e tratamento de concorrência/encerramento. Remover oficialmente componentes Razer exige outro teste recuperável; não é necessário extrair DLLs AppEngine para a rota USB que acabou de funcionar.
+O ciclo corrigido foi confirmado fisicamente. A conexão dos frames recebidos pelo HAL à saída USB está em ensaio no [runner nativo limitado](aura-usb-primeiro-ciclo.md). Remover oficialmente componentes Razer exige outro teste recuperável; não é necessário extrair DLLs AppEngine para a rota USB que acabou de funcionar.

@@ -1,6 +1,7 @@
 using System;
 using System.Web.Script.Serialization;
 using AuraLink.Adapters.Razer;
+using AuraLink.Adapters.Asus;
 
 internal static class RazerHidProbe
 {
@@ -12,6 +13,11 @@ internal static class RazerHidProbe
             BaseStationProtocol.SelfTest();
             VolatileFrameProtocol.SelfTest();
             if(args.Length==3 && args[0]=="--rgb-from-rainbow") return RazerVolatileExperiment.RunFromRainbow(args[1],int.Parse(args[2]));
+            if(args.Length==5 && args[0]=="--native-from-rainbow")
+            {
+                using(var source=new HalLogFrameSource(args[3],int.Parse(args[4])))
+                    return RazerVolatileExperiment.RunFromRainbow(args[1],int.Parse(args[2]),()=>new HidFeatureSession(),false,source.Poll);
+            }
             if(args.Length==1 && args[0]=="--restore-normal") return RazerVolatileExperiment.RestoreNormal();
             if(args.Length==1 && args[0]=="--restore-rainbow") return RazerVolatileExperiment.RestoreRainbow();
             if(args.Length==2 && args[0]=="--lifecycle-tests") { RazerVolatileLifecycleTests.Run(args[1]); return 0; }

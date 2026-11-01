@@ -32,8 +32,18 @@
     "driverIndependenceProven": false,
     "arbitraryOriginalEffectReadable": false,
     "exactRainbowParametersRecovered": false,
-    "correctedAutomaticFullCyclePhysicallyRetested": false,
+    "correctedAutomaticFullCyclePhysicallyRetested": true,
     "armouryToUsbConnected": false
+  },
+  "correctedAutomaticCycle": {
+    "run": "20261101-195140-769",
+    "probeSha256": "4F71AD50AA978D030598DA57305C04BB4E257E4FE0C0422A701408DDA1D60960",
+    "redObservedByUser": "vermelho ativo",
+    "stoppedByStopFile": true,
+    "automaticRainbowObservedByUser": "Voltou ao arco-íris",
+    "technicalCompletion": true,
+    "isolationMaintained": true,
+    "sdkServicesRestored": true
   },
   "automatedValidation": {
     "protocolSelfTestsPassed": true,

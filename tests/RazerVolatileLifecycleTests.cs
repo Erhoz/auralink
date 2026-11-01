@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Web.Script.Serialization;
 using AuraLink.Adapters.Razer;
+using AuraLink.Adapters.Asus;
+using AuraLink.Core;
 
 internal static class RazerVolatileLifecycleTests
 {
@@ -11,6 +13,7 @@ internal static class RazerVolatileLifecycleTests
         internal byte Mode;
         internal bool FailFrame,FailRestore,FailRainbow,Disposed;
         internal int ModeWrites,RestoreAttempts,RainbowWrites;
+        internal byte[] LastFrame;
         internal string Directory;
         public byte[] Exchange(byte[] request,bool writeAck)
         {
@@ -29,6 +32,7 @@ internal static class RazerVolatileLifecycleTests
             if(request[7]==0x0f && request[8]==3)
             {
                 if(FailFrame) throw new IOException("Injected frame failure");
+                LastFrame=(byte[])request.Clone();
                 File.WriteAllText(Path.Combine(Directory,"stop-test"),"");
             }
             if(request[7]==0x0f && request[8]==2 && request[11]==4)
@@ -63,5 +67,32 @@ internal static class RazerVolatileLifecycleTests
         if(RazerVolatileExperiment.RunFromRainbow(rainbowFailure.Directory,1,()=>rainbowFailure,true)!=2 || (bool)Read(rainbowFailure.Directory)["RecoveryEffectAccepted"] || !rainbowFailure.Disposed)
             throw new Exception("Rainbow recovery failure was hidden");
         Console.WriteLine("{\"lifecycleTestsPassed\":5,\"simulation\":true,\"hardwareAccess\":false}");
+        var bridge=new Fake { Directory=Path.Combine(suite,"native-frame") };
+        if(RazerVolatileExperiment.RunFromRainbow(bridge.Directory,1,()=>bridge,true,()=>new RgbColor(0x12,0x34,0x56))!=0 || bridge.LastFrame[14]!=0x12 || bridge.LastFrame[15]!=0x34 || bridge.LastFrame[16]!=0x56 || bridge.RainbowWrites!=1)
+            throw new Exception("Native frame did not reach USB encoder and restore");
+        var sourceFailure=new Fake { Directory=Path.Combine(suite,"source-failure") };
+        if(RazerVolatileExperiment.RunFromRainbow(sourceFailure.Directory,1,()=>sourceFailure,true,()=>{throw new IOException("Injected source failure");})!=2 || sourceFailure.RainbowWrites!=1 || !sourceFailure.Disposed)
+            throw new Exception("Source failure did not restore/dispose");
+        var serializer=new JavaScriptSerializer();
+        DateTime now=DateTime.UtcNow;
+        Func<string,int,DateTime,string> line=(process,pid,stamp)=>serializer.Serialize(new { process=process,processId=pid,timestampUtc=stamp.ToString("o"),operation="SetEffect",data=new { effectId=0, colors=new uint[]{0xff563412} } });
+        var parsed=HalLogFrameSource.Parse(line("LightingService",123,now),123,now);
+        if(!parsed.HasValue || parsed.Value.ToString()!="123456") throw new Exception("HAL channel hypothesis encoding changed");
+        if(HalLogFrameSource.Parse(line("LightingService",123,now.AddSeconds(-10)),123,now).HasValue ||
+            HalLogFrameSource.Parse(line("LightingService",999,now),123,now).HasValue ||
+            HalLogFrameSource.Parse(line("SyntheticClient",123,now),123,now).HasValue)
+            throw new Exception("Stale or foreign HAL frames accepted");
+        string path=Path.Combine(suite,"tail.jsonl");
+        File.WriteAllText(path,line("LightingService",123,now)+"\n");
+        using(var reader=new HalLogFrameSource(path,123))
+        {
+            if(reader.Poll().HasValue) throw new Exception("Old log was replayed");
+            string next=line("LightingService",123,DateTime.UtcNow);
+            File.AppendAllText(path,next.Substring(0,next.Length/2));
+            if(reader.Poll().HasValue) throw new Exception("Partial log line was consumed");
+            File.AppendAllText(path,next.Substring(next.Length/2)+"\n");
+            if(!reader.Poll().HasValue || reader.AcceptedFrames!=1) throw new Exception("Completed log line was lost");
+        }
+        Console.WriteLine("{\"nativeBridgeTestsPassed\":5,\"simulation\":true,\"hardwareAccess\":false,\"colorOrderPhysicallyValidated\":false}");
     }
 }
