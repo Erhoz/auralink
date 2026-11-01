@@ -1,5 +1,7 @@
 # USB direto e componentes AppEngine
 
+Este documento registra a etapa de consultas e análise estática. A etapa seguinte já confirmou vermelho físico por USB e recuperação explícita do arco-íris; veja o [ensaio RGB volátil](usb-rgb-volatil.md), suas limitações e a falha do primeiro encerramento.
+
 Investigação em 1 de novembro de 2026, após a [validação do Chroma e de suas dependências](razer-saida-e-dependencias.md). O objetivo continua sendo receber efeitos nativos do Armoury por um HAL HeadphoneStand; as rotas abaixo substituem somente a saída para o Razer.
 
 ## Resultado

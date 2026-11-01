@@ -2,7 +2,7 @@
 
 Investigação de uma integração **não oficial**, sem vínculo com ASUS, Razer ou Corsair, para apresentar dispositivos RGB externos ao Aura Sync do Armoury Crate.
 
-**Prova de conceito nativa validada com um dispositivo virtual:** o usuário confirmou o novo cartão no Armoury Crate e o HAL recebeu 202 chamadas reais de `SetEffect` do LightingService após a seleção e troca de efeitos. O dispositivo físico Razer ainda não recebe comandos AuraLink. O registro temporário foi removido após o ensaio.
+**Prova de conceito nativa validada com um dispositivo virtual:** o usuário confirmou o novo cartão no Armoury Crate e o HAL recebeu 202 chamadas reais de `SetEffect` do LightingService após a seleção e troca de efeitos. A saída USB própria também acendeu o Razer em vermelho, em ensaio separado. A ligação entre HAL e USB ainda está pendente. O registro temporário foi removido após o ensaio.
 
 Leia o [resultado da etapa 3](docs/armoury-etapa3.md), incluindo correção de ativação nativa, regressões e recuperação. A criação de uma categoria própria na interface também permanece não comprovada.
 
@@ -49,7 +49,7 @@ Python é necessário apenas para o leitor PE e seus testes. A sonda COM usa `Ad
 
 O único dispositivo Razer reconhecido pelo adaptador é o Base Station Chroma original `1532:0F08`. As várias interfaces PnP pertencem ao dispositivo composto; não representam vários suportes físicos. O HAL em `src/DiagnosticHal/` anuncia apenas um dispositivo virtual de diagnóstico, já observado como suporte na interface e recebendo efeitos. O [teste isolado Chroma](tools/test_razer_chroma.py) já produziu vermelho físico confirmado pelo usuário, com liberação de sessão. A [avaliação de dependências](docs/razer-saida-e-dependencias.md) mostra que a rota testada funciona com AppEngine em execução e falhou somente com os serviços SDK. O teste Razer ainda não está ligado ao HAL; a sincronização física completa permanece pendente.
 
-A [investigação USB/AppEngine](docs/usb-appengine-investigacao.md) já consultou modo e firmware diretamente por HID, sem AppEngine e com serviços SDK parados durante as consultas. Brilho permaneceu desconhecido; RGB direto ainda não foi testado. O filtro de driver Razer permanece instalado, portanto não há prova de independência completa de seus drivers. Execute `powershell.exe -NoProfile -File .\Read-RazerHid.ps1` para somente metadados ou acrescente `-QueryState` para consultas isoladas com restauração dos serviços.
+A [investigação USB/AppEngine](docs/usb-appengine-investigacao.md) consultou modo e firmware diretamente por HID. O [ensaio RGB volátil](docs/usb-rgb-volatil.md) depois produziu vermelho físico sem AppEngine e com os serviços SDK parados; a recuperação explícita do arco-íris também foi confirmada pelo usuário. O primeiro retorno somente ao modo normal deixou a base vermelha, e o encerramento foi corrigido para enviar o efeito conhecido. O ciclo corrigido passou testes simulados, mas aguarda repetição física completa. O filtro de driver Razer permanece instalado, portanto não há prova de independência completa de seus drivers. Execute `powershell.exe -NoProfile -File .\Read-RazerHid.ps1` para somente metadados ou acrescente `-QueryState` para consultas isoladas com restauração dos serviços.
 
 Teste de regressão do registro COM em caminho com espaços, usando host Python sem CLR previamente carregado:
 

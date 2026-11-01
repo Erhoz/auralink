@@ -1,0 +1,44 @@
+{
+  "date": "2026-11-01",
+  "device": { "vid": "1532", "pid": "0F08", "firmwareResponse": [1, 0] },
+  "transport": "Windows HID feature reports, 91 bytes, MI_00",
+  "redTest": {
+    "run": "20261101-194223-970",
+    "probeSha256": "C6EF06943F94C95063E2AA383C40BCDB8AC494388360430A6BDC33D74A3A152F",
+    "originalMode": [0, 0],
+    "softwareModeConfirmed": [3, 0],
+    "volatile15LedRedFrameAccepted": true,
+    "physicalRedConfirmedByUser": true,
+    "userObservation": "ficou vermelho",
+    "appEngineAbsent": true,
+    "sdkServicesStoppedDuringTest": true,
+    "normalModeReadbackAfterCleanup": [0, 0],
+    "physicalInitialCleanupSucceeded": false,
+    "cleanupUserObservation": "Continua vermelha"
+  },
+  "rainbowRecovery": {
+    "run": "20261101-194615-568",
+    "probeSha256": "B58708E930578048D4EDDA36A920922C0BCBCD6C1C22EB91CD27E056188A7B8F",
+    "normalModeConfirmed": true,
+    "volatileRainbowCommandAccepted": true,
+    "isolationMaintained": true,
+    "physicalRecoveryConfirmedByUser": true,
+    "userObservation": "arcoires voltou",
+    "sdkServicesRestored": true,
+    "sdkStartModesUnchanged": true
+  },
+  "limitations": {
+    "razerFilterStillInstalled": "RzDev_0f08",
+    "driverIndependenceProven": false,
+    "arbitraryOriginalEffectReadable": false,
+    "exactRainbowParametersRecovered": false,
+    "correctedAutomaticFullCyclePhysicallyRetested": false,
+    "armouryToUsbConnected": false
+  },
+  "automatedValidation": {
+    "protocolSelfTestsPassed": true,
+    "simulatedLifecycleTestsPassed": 5,
+    "existingPythonTestsPassed": 8,
+    "simulationIsHardwareProof": false
+  }
+}

@@ -5,7 +5,7 @@ $directory=Join-Path $PSScriptRoot 'artifacts\usb-investigation'
 New-Item -ItemType Directory -Force -Path $directory | Out-Null
 $compiler=Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
 $exe=Join-Path $directory 'AuraLink.RazerHidProbe.exe'
-$sources=@('src\Adapters\Razer\HidMetadata.cs','src\Adapters\Razer\BaseStationProtocol.cs','src\Adapters\Razer\HidStateReader.cs','tools\RazerHidProbe.cs') | ForEach-Object {Join-Path $PSScriptRoot $_}
+$sources=@('src\Adapters\Razer\HidMetadata.cs','src\Adapters\Razer\BaseStationProtocol.cs','src\Adapters\Razer\HidStateReader.cs','src\Adapters\Razer\HidFeatureSession.cs','src\Adapters\Razer\VolatileFrameProtocol.cs','tools\RazerVolatileExperiment.cs','tools\RazerHidProbe.cs','tests\RazerVolatileLifecycleTests.cs') | ForEach-Object {Join-Path $PSScriptRoot $_}
 & $compiler /nologo /target:exe /platform:anycpu /optimize+ /warnaserror+ /reference:System.Web.Extensions.dll "/out:$exe" $sources
 if($LASTEXITCODE -ne 0){throw 'HID metadata probe compilation failed.'}
 & $exe --self-test

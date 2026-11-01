@@ -30,10 +30,14 @@ namespace AuraLink.Adapters.Razer
         }
         public static void ValidateEnvelope(byte[] request, byte[] response)
         {
+            ValidateEnvelope(request,response,request[6]);
+        }
+        public static void ValidateEnvelope(byte[] request, byte[] response, int minimumPayload)
+        {
             if(request.Length!=91 || response.Length!=91 || response[0]!=0) throw new InvalidOperationException("Invalid HID report size/ID");
             if(response[3]!=request[3] || response[4]!=request[4] || response[7]!=request[7] || response[8]!=request[8])
                 throw new InvalidOperationException("Response does not match query");
-            if(response[6]>80 || response[6]<request[6]) throw new InvalidOperationException("Invalid response payload length");
+            if(response[6]>80 || response[6]<minimumPayload) throw new InvalidOperationException("Invalid response payload length");
             if(response[89]!=Checksum(response)) throw new InvalidOperationException("Response checksum mismatch");
         }
         public static void Validate(byte[] request, byte[] response)
