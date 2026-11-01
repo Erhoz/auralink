@@ -37,7 +37,9 @@ try{
     foreach($line in $sums){$parts=$line -split '  ',2;if($parts.Count -ne 2 -or $parts[1] -notin $names[0..2] -or (Get-FileHash (Join-Path $directory $parts[1]) -Algorithm SHA256).Hash.ToLowerInvariant() -ne $parts[0]){throw 'Checksum manifest mismatch.'}}
     $existing=@(Invoke-RestMethod -Uri ($base+'/releases?per_page=100') -Headers $headers | ForEach-Object {$_} | Where-Object tag_name -eq $tag)
     if($existing.Count){throw 'A release with this tag already exists; refusing to replace it.'}
-    $notes=Get-Content (Join-Path $repo ('docs\releases\'+$version+'.md')) -Raw -Encoding UTF8
+    # ReadAllText returns a plain string; PS 5.1 Get-Content adds provider
+    # properties that ConvertTo-Json can serialize as an object instead of text.
+    $notes=[IO.File]::ReadAllText((Join-Path $repo ('docs\releases\'+$version+'.md')),[Text.Encoding]::UTF8)
     $body=@{tag_name=$tag;target_commitish=$head;name='AuraLink '+$version;body=$notes;draft=$true;prerelease=($version.Contains('-'));make_latest='false'} | ConvertTo-Json -Depth 4
     $release=Invoke-RestMethod -Method Post -Uri ($base+'/releases') -Headers $headers -ContentType 'application/json' -Body ([Text.Encoding]::UTF8.GetBytes($body))
     $uploaded=@()
@@ -50,5 +52,7 @@ try{
         $uploaded+= [pscustomobject]@{Name=$asset.name;Bytes=$asset.size;URL=$asset.browser_download_url;Digest=$asset.digest}
     }
     $published=Invoke-RestMethod -Method Patch -Uri ($base+'/releases/'+$release.id) -Headers $headers -ContentType 'application/json' -Body '{"draft":false}'
-    [pscustomobject]@{Version=$version;URL=$published.html_url;Prerelease=$published.prerelease;Draft=$published.draft;Assets=$uploaded} | ConvertTo-Json -Depth 5
+    $published=Invoke-RestMethod -Uri ($base+'/releases/'+$release.id) -Headers $headers
+    $publicAssets=@($published.assets | ForEach-Object {[pscustomobject]@{Name=$_.name;Bytes=$_.size;URL=$_.browser_download_url;Digest=$_.digest}})
+    [pscustomobject]@{Version=$version;URL=$published.html_url;Prerelease=$published.prerelease;Draft=$published.draft;Assets=$publicAssets} | ConvertTo-Json -Depth 5
 }finally{$secret=$null;$headers=$null}

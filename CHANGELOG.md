@@ -1,5 +1,9 @@
 # Changelog
 
+## Não publicado
+
+- Correção da serialização das notas no publicador para Windows PowerShell 5.1 e atualização dos links dos assets após sair de rascunho. Os binários e a tag de 1.0.0-beta.1 permanecem inalterados.
+
 ## 1.0.0-beta.1 — 2026-11-01
 
 - Primeiro instalador Windows x64 e pacote ZIP com hashes SHA-256.
