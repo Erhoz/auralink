@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 using AuraLink.Core;
 
 [assembly: AssemblyVersion("0.1.0.0")]
@@ -21,7 +22,9 @@ namespace AuraLink.DiagnosticHal
     public sealed class DiagnosticDevice : IAacLedDevice
     {
         private readonly IEffectSink sink;
-        public DiagnosticDevice(IEffectSink sink) { this.sink = sink; }
+        private readonly FramePipePublisher publisher;
+        public DiagnosticDevice(IEffectSink sink) : this(sink,null) { }
+        public DiagnosticDevice(IEffectSink sink,FramePipePublisher publisher) { this.sink = sink; this.publisher=publisher; }
         public int GetCapability(out string capability)
         {
             capability = null;
@@ -41,13 +44,18 @@ namespace AuraLink.DiagnosticHal
             {
                 uint[] values = new uint[numberOfColors];
                 for (int i=0; i<values.Length; i++) values[i] = unchecked((uint)Marshal.ReadInt32(colors, i*4));
-                sink.Record("SetEffect", new { effectId = effectId, colors = values });
+                if(publisher!=null)
+                {
+                    if(values.Length==1 && (effectId==0 || effectId==1 || effectId==255)) publisher.Publish(effectId,values[0]);
+                }
+                else sink.Record("SetEffect", new { effectId = effectId, colors = values });
                 return Status.Ok;
             }
             catch { return Status.Failure; }
         }
         public int Synchronize(uint effectId, ulong milliseconds)
         {
+            if(publisher!=null) return Status.Ok; // no scheduling implemented; no per-frame disk IO
             try { sink.Record("Synchronize", new { effectId = effectId, milliseconds = milliseconds }); return Status.Ok; }
             catch { return Status.Failure; }
         }
@@ -58,13 +66,21 @@ namespace AuraLink.DiagnosticHal
      ComDefaultInterface(typeof(IAacLedDeviceHal))]
     public sealed class DiagnosticHal : IAacLedDeviceHal
     {
+        private static readonly Lazy<FramePipePublisher> Publisher=new Lazy<FramePipePublisher>(()=>{
+            if(!String.Equals(Process.GetCurrentProcess().ProcessName,"LightingService",StringComparison.OrdinalIgnoreCase)) return null;
+            var value=new FramePipePublisher(FramePipePublisher.NameForProcess(Process.GetCurrentProcess().Id));
+            AppDomain.CurrentDomain.ProcessExit+=(sender,args)=>value.Dispose();
+            AppDomain.CurrentDomain.DomainUnload+=(sender,args)=>value.Dispose();
+            return value;
+        });
         private readonly IEffectSink sink;
         private readonly DiagnosticDevice device;
         public DiagnosticHal()
         {
             sink = new JsonLineSink(Path.Combine(Path.GetDirectoryName(typeof(DiagnosticHal).Assembly.Location), "logs"));
-            device = new DiagnosticDevice(sink);
-            sink.Record("Activated", new { classId = typeof(DiagnosticHal).GUID.ToString(), diagnostic = true });
+            if(Publisher.Value!=null) sink=new BestEffortSink(sink);
+            device = new DiagnosticDevice(sink,Publisher.Value);
+            sink.Record("Activated", new { classId = typeof(DiagnosticHal).GUID.ToString(), diagnostic = true, frameChannel=Publisher.Value!=null ? "pipe-v1" : "diagnostic-only" });
         }
         public int Enumerate(IntPtr devices, ref uint count)
         {

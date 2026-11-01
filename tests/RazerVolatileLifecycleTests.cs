@@ -14,6 +14,8 @@ internal static class RazerVolatileLifecycleTests
         internal bool FailFrame,FailRestore,FailRainbow,Disposed;
         internal int ModeWrites,RestoreAttempts,RainbowWrites;
         internal byte[] LastFrame;
+        internal bool StopOnFrame=true;
+        internal Action AfterFrame;
         internal string Directory;
         public byte[] Exchange(byte[] request,bool writeAck)
         {
@@ -33,7 +35,8 @@ internal static class RazerVolatileLifecycleTests
             {
                 if(FailFrame) throw new IOException("Injected frame failure");
                 LastFrame=(byte[])request.Clone();
-                File.WriteAllText(Path.Combine(Directory,"stop-test"),"");
+                if(StopOnFrame) File.WriteAllText(Path.Combine(Directory,"stop-test"),"");
+                if(AfterFrame!=null) AfterFrame();
             }
             if(request[7]==0x0f && request[8]==2 && request[11]==4)
             {
@@ -94,5 +97,18 @@ internal static class RazerVolatileLifecycleTests
             if(!reader.Poll().HasValue || reader.AcceptedFrames!=1) throw new Exception("Completed log line was lost");
         }
         Console.WriteLine("{\"nativeBridgeTestsPassed\":5,\"simulation\":true,\"hardwareAccess\":false,\"colorOrderPhysicallyValidated\":false}");
+        using(var publisher=new FramePipePublisher(FramePipePublisher.NameForProcess(System.Diagnostics.Process.GetCurrentProcess().Id)))
+        {
+            publisher.Publish(0,0xff0000ff);
+            using(var source=new HalPipeFrameSource(System.Diagnostics.Process.GetCurrentProcess().Id))
+            {
+                var disconnected=new Fake { Directory=Path.Combine(suite,"real-pipe-disconnect"),StopOnFrame=false,AfterFrame=()=>publisher.Dispose() };
+                if(RazerVolatileExperiment.RunFromRainbow(disconnected.Directory,2,()=>disconnected,true,source.Poll,"real pipe with simulated USB")!=2 ||
+                    disconnected.LastFrame[14]!=255 || disconnected.LastFrame[15]!=0 || disconnected.LastFrame[16]!=0 ||
+                    disconnected.RainbowWrites!=1 || !disconnected.Disposed || !(bool)Read(disconnected.Directory)["ModeRestored"])
+                    throw new Exception("Real pipe disconnect did not recover simulated USB");
+            }
+        }
+        Console.WriteLine("{\"pipeDisconnectRecoveryTestPassed\":true,\"ipc\":\"real Windows named pipe\",\"usb\":\"simulated\",\"hardwareAccess\":false}");
     }
 }

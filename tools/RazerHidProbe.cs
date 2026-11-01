@@ -18,6 +18,11 @@ internal static class RazerHidProbe
                 using(var source=new HalLogFrameSource(args[3],int.Parse(args[4])))
                     return RazerVolatileExperiment.RunFromRainbow(args[1],int.Parse(args[2]),()=>new HidFeatureSession(),false,source.Poll);
             }
+            if(args.Length==4 && args[0]=="--pipe-from-rainbow")
+            {
+                using(var source=new HalPipeFrameSource(int.Parse(args[3])))
+                    return RazerVolatileExperiment.RunFromRainbow(args[1],int.Parse(args[2]),()=>new HidFeatureSession(),false,source.Poll,"native HAL pipe-v1",()=>new { source.Polls,source.NewFrames });
+            }
             if(args.Length==1 && args[0]=="--restore-normal") return RazerVolatileExperiment.RestoreNormal();
             if(args.Length==1 && args[0]=="--restore-rainbow") return RazerVolatileExperiment.RestoreRainbow();
             if(args.Length==2 && args[0]=="--lifecycle-tests") { RazerVolatileLifecycleTests.Run(args[1]); return 0; }

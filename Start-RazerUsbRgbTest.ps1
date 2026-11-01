@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([ValidateRange(1,300)][int]$Seconds=180,[switch]$RestoreRainbow,[switch]$RainbowBaseline,[switch]$NativeHal)
+param([ValidateRange(1,300)][int]$Seconds=180,[switch]$RestoreRainbow,[switch]$RainbowBaseline,[switch]$NativeHal,[ValidateSet('Pipe','Log')][string]$FrameTransport='Pipe')
 $ErrorActionPreference='Stop'
 if(-not $RestoreRainbow -and -not $RainbowBaseline){throw 'Declare the known rainbow baseline with -RainbowBaseline; arbitrary prior effects cannot be restored.'}
 if($RestoreRainbow -and $NativeHal){throw 'Recovery and native HAL modes are mutually exclusive.'}
@@ -16,6 +16,11 @@ $argsText='-NoProfile -NonInteractive -File "{0}" -RunDirectory "{1}" -Seconds {
 if($RestoreRainbow){$argsText+=' -RestoreRainbow'}
 else{$argsText+=' -RainbowBaseline'}
 if($NativeHal){$argsText+=' -NativeHal'}
+if($NativeHal -and $FrameTransport -eq 'Pipe'){
+    & (Join-Path $PSScriptRoot 'Build-DiagnosticHal.ps1') | Out-Null
+    $halHash=(Get-FileHash (Join-Path $PSScriptRoot 'artifacts\diagnostic-hal\AuraLink.DiagnosticHal.dll')).Hash
+    $argsText+=' -FrameTransport Pipe -ExpectedHalHash '+$halHash
+}elseif($NativeHal){$argsText+=' -FrameTransport Log'}
 $process=Start-Process -FilePath $engine -Verb RunAs -ArgumentList $argsText -WindowStyle Hidden -PassThru
 $null=$process.Handle
 try{

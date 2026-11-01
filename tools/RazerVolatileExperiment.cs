@@ -18,7 +18,7 @@ internal static class RazerVolatileExperiment
     {
         return RunFromRainbow(directory,seconds,factory,simulation,null);
     }
-    internal static int RunFromRainbow(string directory,int seconds,Func<IHidControl> factory,bool simulation,Func<RgbColor?> nextFrame)
+    internal static int RunFromRainbow(string directory,int seconds,Func<IHidControl> factory,bool simulation,Func<RgbColor?> nextFrame,string sourceName="native HAL log",Func<object> sourceMetrics=null)
     {
         if(seconds<1 || seconds>300) throw new ArgumentOutOfRangeException("seconds");
         Directory.CreateDirectory(directory);
@@ -30,7 +30,7 @@ internal static class RazerVolatileExperiment
             {"StartedUtc",DateTime.UtcNow.ToString("o")},{"Completed",false},{"ColorRgb",nextFrame==null ? "FF0000" : null},
             {"MaximumSeconds",seconds},{"ModeChangeAttempted",false},{"FrameAccepted",false},
             {"Simulation",simulation},
-            {"Source",nextFrame==null ? "red diagnostic" : "native HAL log"},{"FramesWritten",0},
+            {"Source",nextFrame==null ? "red diagnostic" : sourceName},{"FramesWritten",0},
             {"RecoveryEffect","rainbow-wave"},{"RecoveryEffectAccepted",false},
             {"BaselineSource","explicit caller declaration; effect is not readable"},
             {"PhysicalRestorationValidated",false},
@@ -41,6 +41,7 @@ internal static class RazerVolatileExperiment
         bool attempted=false;
         bool restored=false;
         string failure=null;
+        TimeSpan cpuBefore=Process.GetCurrentProcess().TotalProcessorTime;
         using(var session=factory())
         {
             try
@@ -115,6 +116,12 @@ internal static class RazerVolatileExperiment
                     catch(Exception error) { report["RestoreError"]=error.ToString(); }
                 }
                 report["Completed"]=failure==null && restored;
+                if(sourceMetrics!=null) report["SourceMetrics"]=sourceMetrics();
+                using(var process=Process.GetCurrentProcess())
+                {
+                    report["WorkerCpuMilliseconds"]=(process.TotalProcessorTime-cpuBefore).TotalMilliseconds;
+                    report["WorkerPeakWorkingSetBytes"]=process.PeakWorkingSet64;
+                }
                 report["FinishedUtc"]=DateTime.UtcNow.ToString("o");
                 save();
             }

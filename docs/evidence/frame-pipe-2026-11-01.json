@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-01",
+  "transport": "Windows named pipe v1, 32-byte latest-frame protocol",
+  "localIpcTests": {
+    "x64Passed": true,
+    "x86Passed": true,
+    "checksPerArchitecture": 8,
+    "burstFramesPerRun": 50000,
+    "initialConnectionRaceFoundAndFixed": true,
+    "x64RepetitionsAfterFix": 20,
+    "publisherDisconnectTested": true,
+    "workerReconnectTested": true,
+    "serverIdentityRefusalTested": true,
+    "silentServerTimeoutTested": true,
+    "hardwareAccess": false
+  },
+  "recoveryTests": {
+    "realPipeAndSimulatedUsbDisconnectPassed": true,
+    "unwritableDiagnosticSinkWithRealHalAndPipePassedX86X64": true,
+    "nativeComAndTargetedAsusSdkPassedX86X64": true,
+    "temporaryUserRegistrationRemoved": true,
+    "hardwareAccess": false
+  },
+  "machineRun": {
+    "run": "20261101-201251-992",
+    "probeSha256": "6AF7C00C74349623EBEDB68B25EC545F084A3049C57B295458C46F4EE090DCB2",
+    "halSha256": "CA5F2DD4A61ECAA13F98403C934DACADAFDA6DAB9F57F5966F94D35D09489634",
+    "lightingServicePid": 33480,
+    "durationSeconds": 300,
+    "completed": true,
+    "pipePolls": 4846,
+    "newFrames": 1,
+    "usbFramesAccepted": 1,
+    "onlyColorRgb": "000000",
+    "workerCpuMilliseconds": 1437.5,
+    "workerPeakWorkingSetBytes": 37822464,
+    "appEngineAbsentAndSdkServicesStopped": true,
+    "normalModeRestored": true,
+    "rainbowRecoveryCommandAccepted": true,
+    "sdkServicesRestored": true,
+    "nativeRegistrationRemoved": true,
+    "cleanupError": null,
+    "visualResponseDuringTest": null,
+    "dynamicLightingValidatedOnPipe": false,
+    "physicalPostCleanupConfirmation": null,
+    "laterOptionalDiagnosticGuards": "passed component and COM tests; not included in this machine-run binary"
+  },
+  "limitations": [
+    "Five-minute static IPC run only, no new animation frames during the observation window",
+    "Earlier physical RGB/animation proof used legacy JSONL transport",
+    "No physical USB disconnect/reconnect test",
+    "Razer filter remains installed",
+    "No autostart enabled; current runner remains bounded",
+    "Arbitrary prior lighting profile cannot be restored"
+  ]
+}

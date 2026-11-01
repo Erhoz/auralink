@@ -2,7 +2,8 @@
 param([Parameter(Mandatory=$true)][string]$RunDirectory,
       [ValidateRange(1,300)][int]$Seconds=180,
       [Parameter(Mandatory=$true)][ValidatePattern('^[a-fA-F0-9]{64}$')][string]$ExpectedProbeHash,
-      [switch]$RestoreRainbow,[switch]$RainbowBaseline,[switch]$NativeHal)
+      [switch]$RestoreRainbow,[switch]$RainbowBaseline,[switch]$NativeHal,
+      [ValidateSet('Pipe','Log')][string]$FrameTransport='Pipe',[string]$ExpectedHalHash)
 $ErrorActionPreference='Stop'
 if(-not $RestoreRainbow -and -not $RainbowBaseline){throw 'Known rainbow baseline required.'}
 $repo=Split-Path -Parent $PSScriptRoot
@@ -50,6 +51,26 @@ try{
     if($NativeHal){
         if($RestoreRainbow){throw 'Native HAL cannot run in recovery mode.'}
         if((Test-Path -LiteralPath $manifest) -or (Test-Path -LiteralPath (Join-Path $cacheStage 'session.json'))){throw 'Existing HAL registration/session; end it before a native test.'}
+        if($FrameTransport -eq 'Pipe'){
+            if($ExpectedHalHash -notmatch '^[A-Fa-f0-9]{64}$'){throw 'Expected pipe HAL hash required.'}
+            $engine=Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
+            $installer=Join-Path $PSScriptRoot 'Set-MachineDiagnostic.ps1'
+            $nativeOwned=$true
+            & $engine -NoProfile -NonInteractive -File $installer -Action Install -ExpectedAssemblyHash $ExpectedHalHash
+            if($LASTEXITCODE -ne 0){throw 'Protected pipe HAL preparation failed.'}
+            $preparedPath=Join-Path $repo 'artifacts\armoury-stage3\operation.json'
+            $prepared=Get-Content $preparedPath -Raw | ConvertFrom-Json
+            if(-not $prepared.Completed -or $prepared.AssemblyHash -ne $ExpectedHalHash){throw 'Protected pipe HAL preparation report mismatch.'}
+            $legacy=Join-Path $cacheStage 'installation-log.json'
+            if(-not(Test-Path -LiteralPath $legacy)){
+                Copy-Item -LiteralPath (Join-Path $cacheStage 'installation.json') -Destination $legacy
+            }
+            Copy-Item -LiteralPath $preparedPath -Destination (Join-Path $cacheStage 'installation.json')
+            $report.PipeHalPreparation=$prepared
+        }
+        elseif(Test-Path -LiteralPath (Join-Path $cacheStage 'installation-log.json')){
+            Copy-Item -LiteralPath (Join-Path $cacheStage 'installation-log.json') -Destination (Join-Path $cacheStage 'installation.json')
+        }
         $installation=Get-Content (Join-Path $cacheStage 'installation.json') -Raw | ConvertFrom-Json
         $dll=[IO.Path]::GetFullPath((Join-Path $installation.InstallDirectory 'AuraLink.DiagnosticHal.dll'))
         $protectedRoot=[IO.Path]::GetFullPath((Join-Path $env:ProgramFiles 'AuraLink\DiagnosticHal'))+'\'
@@ -57,13 +78,15 @@ try{
         foreach($name in @('ArmouryCrateService','LightingService')){if((Get-Service $name).Status -ne 'Running'){throw "$name must be running."}}
         $report.NativeInstallationHash=$installation.AssemblyHash
         $nativeOwned=$true
-        & $register -Action Install -Scope Machine -Discovery -AssemblyPath $dll -DeviceType HeadphoneStand | Out-Null
+        if($FrameTransport -eq 'Log'){& $register -Action Install -Scope Machine -Discovery -AssemblyPath $dll -DeviceType HeadphoneStand | Out-Null}
         Invoke-CachePhase 'Begin'
         $cacheBegun=$true
         $lightingProcessId=(Get-CimInstance Win32_Service -Filter "Name='LightingService'").ProcessId
         $nativeLog=Join-Path (Join-Path (Split-Path -Parent $dll) 'logs') ('events-'+$lightingProcessId+'.jsonl')
-        if(-not(Test-Path -LiteralPath $nativeLog)){throw 'Real LightingService did not create its HAL log.'}
-        $report.NativeSource=@{Path=$nativeLog;ProcessId=$lightingProcessId;ColorOrderHypothesis='AABBGGRR';SingleColorReplicatedToLeds=15}
+        if($FrameTransport -eq 'Log' -and -not(Test-Path -LiteralPath $nativeLog)){throw 'Real LightingService did not create its HAL log.'}
+        $report.NativeSource=@{Transport=$FrameTransport;ProcessId=$lightingProcessId;ColorOrder='AABBGGRR';SingleColorReplicatedToLeds=15}
+        if($FrameTransport -eq 'Pipe'){$report.NativeSource.Endpoint='\\.\pipe\AuraLink.Frames.v1.'+$lightingProcessId}
+        else{$report.NativeSource.Path=$nativeLog}
         Save-Report
     }
     $before=@(Get-CimInstance Win32_Service | Where-Object {$_.Name -in $names} | Select-Object Name,State,StartMode,ProcessId)
@@ -81,6 +104,7 @@ try{
     }
     $probeArguments=if($RestoreRainbow){'--restore-rainbow'}else{'--rgb-from-rainbow "{0}" {1}' -f $RunDirectory,$Seconds}
     if($NativeHal){$probeArguments='--native-from-rainbow "{0}" {1} "{2}" {3}' -f $RunDirectory,$Seconds,$nativeLog,$lightingProcessId}
+    if($NativeHal -and $FrameTransport -eq 'Pipe'){$probeArguments='--pipe-from-rainbow "{0}" {1} {2}' -f $RunDirectory,$Seconds,$lightingProcessId}
     $exitCode=Invoke-Probe $probeArguments 'rgb' ($Seconds+20)
     if($RestoreRainbow){$report.RainbowRecovery=Get-Content (Join-Path $RunDirectory 'rgb.stdout.txt') -Raw | ConvertFrom-Json}
     $report.ProbeExitCode=$exitCode

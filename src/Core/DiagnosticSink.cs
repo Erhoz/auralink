@@ -12,6 +12,18 @@ namespace AuraLink.Core
         void Record(string operation, object data);
     }
 
+    public sealed class BestEffortSink : IEffectSink
+    {
+        private readonly IEffectSink inner;
+        public BestEffortSink(IEffectSink inner) { this.inner=inner; }
+        public void Record(string operation,object data)
+        {
+            try { inner.Record(operation,data); }
+            catch(IOException) { }
+            catch(UnauthorizedAccessException) { }
+        }
+    }
+
     // No ASUS, Razer, USB or SDK dependency. One file per process avoids cross-
     // process interleaving. A full/unwritable log fails the call, never claims capture.
     public sealed class JsonLineSink : IEffectSink

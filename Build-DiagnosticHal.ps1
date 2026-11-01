@@ -5,7 +5,7 @@ $output=Join-Path $PSScriptRoot 'artifacts\diagnostic-hal'
 New-Item -ItemType Directory -Force -Path $output | Out-Null
 $compiler=Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
 if(-not (Test-Path -LiteralPath $compiler)){ throw '.NET Framework C# compiler was not found.' }
-$sources=@('src\Core\DiagnosticSink.cs','src\DiagnosticHal\Contracts.cs','src\DiagnosticHal\DiagnosticHal.cs') | ForEach-Object {Join-Path $PSScriptRoot $_}
+$sources=@('src\Core\FramePipe.cs','src\Core\DiagnosticSink.cs','src\DiagnosticHal\Contracts.cs','src\DiagnosticHal\DiagnosticHal.cs') | ForEach-Object {Join-Path $PSScriptRoot $_}
 $resource=Join-Path $PSScriptRoot 'src\DiagnosticHal\Capability.xml'
 $dll=Join-Path $output 'AuraLink.DiagnosticHal.dll'
 & $compiler /nologo /target:library /platform:anycpu /optimize+ /warnaserror+ /reference:System.Web.Extensions.dll "/out:$dll" "/resource:$resource,AuraLink.Capability.xml" $sources

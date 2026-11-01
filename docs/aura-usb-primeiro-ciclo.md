@@ -1,5 +1,7 @@
 # Primeiro ciclo Armoury → HAL → USB
 
+Este documento preserva os ensaios por JSONL. O [canal de frames](canal-frames.md) passou a ser o transporte padrão de `-NativeHal`; acrescente `-FrameTransport Log` para reproduzir a rota histórica nesta máquina.
+
 **Caminho nativo Armoury → HAL → USB validado fisicamente**, em 1 de novembro de 2026: o usuário confirmou vermelho, verde e azul corretos após corrigir a conversão dos canais. Em ensaio anterior confirmou animação recebida do Armoury e os demais dispositivos funcionando, embora vermelho/azul ainda estivessem invertidos naquele momento. O ciclo USB vermelho → recuperação automática do arco-íris também já foi confirmado fisicamente em teste separado. A conclusão técnica do runner continua distinta da observação física.
 
 O HAL HeadphoneStand protegido anteriormente validado continua recebendo os comandos reais do LightingService e gravando seu próprio log. Um processo separado lê somente novos SetEffect desse PID e envia a cor aos 15 LEDs. Este é um backend do nosso provedor nativo; não lê cores da RAM Corsair ou de outro dispositivo existente, nem adquire o controle do SDK ASUS. Não há geração própria de efeitos nesta rota.
