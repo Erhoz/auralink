@@ -1,8 +1,9 @@
 [CmdletBinding()]
-param([ValidateRange(1,300)][int]$Seconds=180,[switch]$RestoreRainbow,[switch]$RainbowBaseline,[switch]$NativeHal,[ValidateSet('Pipe','Log')][string]$FrameTransport='Pipe')
+param([ValidateRange(1,900)][int]$Seconds=180,[switch]$RestoreRainbow,[switch]$RainbowBaseline,[switch]$NativeHal,[ValidateSet('Pipe','Log')][string]$FrameTransport='Pipe',[switch]$UsbReconnectTest)
 $ErrorActionPreference='Stop'
 if(-not $RestoreRainbow -and -not $RainbowBaseline){throw 'Declare the known rainbow baseline with -RainbowBaseline; arbitrary prior effects cannot be restored.'}
 if($RestoreRainbow -and $NativeHal){throw 'Recovery and native HAL modes are mutually exclusive.'}
+if($UsbReconnectTest -and (-not $NativeHal -or $FrameTransport -ne 'Pipe')){throw 'USB reconnection experiment requires native pipe mode.'}
 & (Join-Path $PSScriptRoot 'Read-RazerHid.ps1') | Out-Null
 $exe=Join-Path $PSScriptRoot 'artifacts\usb-investigation\AuraLink.RazerHidProbe.exe'
 & $exe --lifecycle-tests (Join-Path $PSScriptRoot 'artifacts\usb-rgb-tests')
@@ -16,6 +17,7 @@ $argsText='-NoProfile -NonInteractive -File "{0}" -RunDirectory "{1}" -Seconds {
 if($RestoreRainbow){$argsText+=' -RestoreRainbow'}
 else{$argsText+=' -RainbowBaseline'}
 if($NativeHal){$argsText+=' -NativeHal'}
+if($UsbReconnectTest){$argsText+=' -UsbReconnectTest'}
 if($NativeHal -and $FrameTransport -eq 'Pipe'){
     & (Join-Path $PSScriptRoot 'Build-DiagnosticHal.ps1') | Out-Null
     $halHash=(Get-FileHash (Join-Path $PSScriptRoot 'artifacts\diagnostic-hal\AuraLink.DiagnosticHal.dll')).Hash

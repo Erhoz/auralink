@@ -20,12 +20,13 @@ internal static class RazerVolatileExperiment
     }
     internal static int RunFromRainbow(string directory,int seconds,Func<IHidControl> factory,bool simulation,Func<RgbColor?> nextFrame,string sourceName="native HAL log",Func<object> sourceMetrics=null)
     {
-        if(seconds<1 || seconds>300) throw new ArgumentOutOfRangeException("seconds");
+        if(seconds<1 || seconds>900) throw new ArgumentOutOfRangeException("seconds");
         Directory.CreateDirectory(directory);
         string journal=Path.Combine(directory,"device-operation.json");
         string stop=Path.Combine(directory,"stop-test");
         var json=new JavaScriptSerializer();
         var events=new List<object>();
+        var samples=new List<object>();
         var report=new Dictionary<string,object> {
             {"StartedUtc",DateTime.UtcNow.ToString("o")},{"Completed",false},{"ColorRgb",nextFrame==null ? "FF0000" : null},
             {"MaximumSeconds",seconds},{"ModeChangeAttempted",false},{"FrameAccepted",false},
@@ -36,6 +37,7 @@ internal static class RazerVolatileExperiment
             {"PhysicalRestorationValidated",false},
             {"ModeRestored",false},{"PhysicalRgbValidated",false},{"Events",events}
         };
+        report["StabilitySamples"]=samples;
         Action save=()=>File.WriteAllText(journal,json.Serialize(report),new UTF8Encoding(false));
         Action<string,byte[]> note=(name,response)=> { events.Add(new { utc=DateTime.UtcNow.ToString("o"), operation=name, responseHex=BitConverter.ToString(response) }); save(); };
         bool attempted=false;
@@ -72,6 +74,7 @@ internal static class RazerVolatileExperiment
                     Console.Out.Flush();
                 }
                 var clock=Stopwatch.StartNew();
+                double nextSample=30;
                 while(clock.Elapsed.TotalSeconds<seconds && !File.Exists(stop))
                 {
                     if(nextFrame!=null)
@@ -87,6 +90,15 @@ internal static class RazerVolatileExperiment
                             report["LastFrameUtc"]=DateTime.UtcNow.ToString("o");
                             save();
                         }
+                    }
+                    if(clock.Elapsed.TotalSeconds>=nextSample)
+                    {
+                        using(var process=Process.GetCurrentProcess())
+                            samples.Add(new { utc=DateTime.UtcNow.ToString("o"),elapsedSeconds=clock.Elapsed.TotalSeconds,
+                                framesWritten=(int)report["FramesWritten"],workingSetBytes=process.WorkingSet64,
+                                cpuMilliseconds=(process.TotalProcessorTime-cpuBefore).TotalMilliseconds });
+                        nextSample+=30;
+                        save();
                     }
                     Thread.Sleep(50);
                 }

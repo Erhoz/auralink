@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Web.Script.Serialization;
 using AuraLink.Adapters.Razer;
 using AuraLink.Adapters.Asus;
@@ -22,6 +23,16 @@ internal static class RazerHidProbe
             {
                 using(var source=new HalPipeFrameSource(int.Parse(args[3])))
                     return RazerVolatileExperiment.RunFromRainbow(args[1],int.Parse(args[2]),()=>new HidFeatureSession(),false,source.Poll,"native HAL pipe-v1",()=>new { source.Polls,source.NewFrames });
+            }
+            if(args.Length==4 && args[0]=="--pipe-hotplug-from-rainbow")
+            {
+                ReconnectableHidControl control=null;
+                using(var source=new HalPipeFrameSource(int.Parse(args[3])))
+                    return RazerVolatileExperiment.RunFromRainbow(args[1],int.Parse(args[2]),
+                        ()=>control=new ReconnectableHidControl(()=>new HidFeatureSession(),()=>File.Exists(Path.Combine(args[1],"stop-test")),
+                            state=>File.WriteAllText(Path.Combine(args[1],"usb-reconnect-state.json"),json.Serialize(new { state=state,utc=DateTime.UtcNow.ToString("o") }))),
+                        false,()=>{control.CheckConnection();return source.Poll();},"native HAL pipe-v1 + bounded USB reconnect",
+                        ()=>new { source.Polls,source.NewFrames,UsbLifecycle=control.Snapshot() });
             }
             if(args.Length==1 && args[0]=="--restore-normal") return RazerVolatileExperiment.RestoreNormal();
             if(args.Length==1 && args[0]=="--restore-rainbow") return RazerVolatileExperiment.RestoreRainbow();

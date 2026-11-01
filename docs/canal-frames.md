@@ -25,7 +25,7 @@ powershell.exe -NoProfile -File .\Test-FramePipe.ps1
 powershell.exe -NoProfile -File .\Start-RazerUsbRgbTest.ps1 -RainbowBaseline -NativeHal -Seconds 300
 ```
 
-Pipe é o transporte nativo padrão. O launcher compila o novo HAL; o helper elevado copia uma versão própria para diretório protegido por hash, faz ativação COM x86/x64 e renova LightingService/ArmouryCrateService. Não sobrescreve DLL carregada ou arquivo dos fabricantes. Ao encerrar, recupera a base, restaura serviços SDK e remove o registro próprio com atualização dos consumidores ASUS. Os arquivos próprios protegidos são mantidos para análise. O limite permanece 1–300 segundos.
+Pipe é o transporte nativo padrão. O launcher compila o novo HAL; o helper elevado copia uma versão própria para diretório protegido por hash, faz ativação COM x86/x64 e renova LightingService/ArmouryCrateService. Não sobrescreve DLL carregada ou arquivo dos fabricantes. Ao encerrar, recupera a base, restaura serviços SDK e remove o registro próprio com atualização dos consumidores ASUS. Os arquivos próprios protegidos são mantidos para análise. O limite foi ampliado para 1–900 segundos para a rodada final de dez minutos; o padrão continua 180 segundos.
 
 `-FrameTransport Log` preserva a rota anterior nesta máquina, usando o manifesto local legado guardado em `installation-log.json`. É apenas uma alternativa de investigação, não o caminho padrão.
 
@@ -60,4 +60,4 @@ O novo ensaio `20261101-202548-216` usou o HAL completo com canal pipe no Lighti
 
 O modo normal e o comando arco-íris foram confirmados pelo protocolo. O usuário confirmou visualmente que o arco-íris voltou e os demais dispositivos continuaram funcionando. Os dois serviços SDK foram restaurados, o registro próprio foi removido e a sessão temporária terminou sem erro. A inspeção final encontrou os mesmos estados de serviço descritos acima. Essa validação usa o novo pipe, sem consumir os logs como fonte de cor.
 
-Próximos testes: estabilidade prolongada e recuperação por desconexão/reconexão física USB; ainda não executados. O primeiro ensaio de cinco minutos acima continua sendo uma evidência estática distinta do novo ensaio animado. Nenhum componente Razer foi desinstalado e nenhuma inicialização automática foi configurada.
+A [rodada final](ensaios-finais.md) posteriormente concluiu dez minutos de animação e uma desconexão/reconexão física USB, com observação e recuperação confirmadas. A reconexão limitada é opt-in, por `-UsbReconnectTest`; os resultados e limites estão na página vinculada. O primeiro ensaio de cinco minutos acima continua sendo uma evidência estática distinta. A fase de testes solicitada foi encerrada; nenhum componente Razer foi desinstalado e nenhuma inicialização automática foi configurada.

@@ -1,11 +1,12 @@
 [CmdletBinding()]
 param([Parameter(Mandatory=$true)][string]$RunDirectory,
-      [ValidateRange(1,300)][int]$Seconds=180,
+      [ValidateRange(1,900)][int]$Seconds=180,
       [Parameter(Mandatory=$true)][ValidatePattern('^[a-fA-F0-9]{64}$')][string]$ExpectedProbeHash,
       [switch]$RestoreRainbow,[switch]$RainbowBaseline,[switch]$NativeHal,
-      [ValidateSet('Pipe','Log')][string]$FrameTransport='Pipe',[string]$ExpectedHalHash)
+      [ValidateSet('Pipe','Log')][string]$FrameTransport='Pipe',[string]$ExpectedHalHash,[switch]$UsbReconnectTest)
 $ErrorActionPreference='Stop'
 if(-not $RestoreRainbow -and -not $RainbowBaseline){throw 'Known rainbow baseline required.'}
+if($UsbReconnectTest -and (-not $NativeHal -or $FrameTransport -ne 'Pipe')){throw 'USB reconnection experiment requires native pipe mode.'}
 $repo=Split-Path -Parent $PSScriptRoot
 $root=[IO.Path]::GetFullPath((Join-Path $repo 'artifacts\usb-rgb-test'))+'\'
 $RunDirectory=[IO.Path]::GetFullPath($RunDirectory)
@@ -105,7 +106,9 @@ try{
     $probeArguments=if($RestoreRainbow){'--restore-rainbow'}else{'--rgb-from-rainbow "{0}" {1}' -f $RunDirectory,$Seconds}
     if($NativeHal){$probeArguments='--native-from-rainbow "{0}" {1} "{2}" {3}' -f $RunDirectory,$Seconds,$nativeLog,$lightingProcessId}
     if($NativeHal -and $FrameTransport -eq 'Pipe'){$probeArguments='--pipe-from-rainbow "{0}" {1} {2}' -f $RunDirectory,$Seconds,$lightingProcessId}
-    $exitCode=Invoke-Probe $probeArguments 'rgb' ($Seconds+20)
+    if($UsbReconnectTest){$probeArguments='--pipe-hotplug-from-rainbow "{0}" {1} {2}' -f $RunDirectory,$Seconds,$lightingProcessId}
+    $extra=if($UsbReconnectTest){90}else{20}
+    $exitCode=Invoke-Probe $probeArguments 'rgb' ($Seconds+$extra)
     if($RestoreRainbow){$report.RainbowRecovery=Get-Content (Join-Path $RunDirectory 'rgb.stdout.txt') -Raw | ConvertFrom-Json}
     $report.ProbeExitCode=$exitCode
     if($exitCode -ne 0){throw 'Volatile RGB experiment failed; see device-operation.json.'}

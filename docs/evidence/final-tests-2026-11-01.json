@@ -1,0 +1,239 @@
+{
+  "date": "2026-11-01",
+  "scope": "Final two hardware tests authorized by the user; no further rounds planned",
+  "stability": {
+    "run": "20261101-222029-698",
+    "probeSha256": "AEB267879BB7ADC493AA26E091B698428223C820B7423E7C0A2874B836C92608",
+    "halSha256": "DA7F0B5F75CFA9F7D939E9E28341340820702FB782BE4C64449C761CE670461E",
+    "lightingServicePid": 26100,
+    "startedUtc": "2026-11-01T22:20:40.0746Z",
+    "finishedUtc": "2026-11-01T22:30:40.2443594Z",
+    "maximumSeconds": 600,
+    "stopReason": "duration",
+    "completed": true,
+    "error": null,
+    "framesWritten": 7668,
+    "sourceMetrics": {
+      "Polls": 7782,
+      "NewFrames": 7668
+    },
+    "workerCpuMilliseconds": 7421.875,
+    "workerPeakWorkingSetBytes": 38146048,
+    "samples": [
+      {
+        "utc": "2026-11-01T22:21:10.2069156Z",
+        "elapsedSeconds": 30.0341538,
+        "framesWritten": 333,
+        "workingSetBytes": 37044224,
+        "cpuMilliseconds": 250
+      },
+      {
+        "utc": "2026-11-01T22:21:40.2101821Z",
+        "elapsedSeconds": 60.0374274,
+        "framesWritten": 720,
+        "workingSetBytes": 37445632,
+        "cpuMilliseconds": 671.875
+      },
+      {
+        "utc": "2026-11-01T22:22:10.192113Z",
+        "elapsedSeconds": 90.0194405,
+        "framesWritten": 1107,
+        "workingSetBytes": 37478400,
+        "cpuMilliseconds": 984.375
+      },
+      {
+        "utc": "2026-11-01T22:22:40.2338642Z",
+        "elapsedSeconds": 120.06130069999999,
+        "framesWritten": 1493,
+        "workingSetBytes": 37498880,
+        "cpuMilliseconds": 1328.125
+      },
+      {
+        "utc": "2026-11-01T22:23:10.1749849Z",
+        "elapsedSeconds": 150.0024345,
+        "framesWritten": 1880,
+        "workingSetBytes": 37498880,
+        "cpuMilliseconds": 1640.625
+      },
+      {
+        "utc": "2026-11-01T22:23:40.1944183Z",
+        "elapsedSeconds": 180.0219893,
+        "framesWritten": 2265,
+        "workingSetBytes": 37462016,
+        "cpuMilliseconds": 2062.5
+      },
+      {
+        "utc": "2026-11-01T22:24:10.2057006Z",
+        "elapsedSeconds": 210.0332532,
+        "framesWritten": 2652,
+        "workingSetBytes": 37515264,
+        "cpuMilliseconds": 2406.25
+      },
+      {
+        "utc": "2026-11-01T22:24:40.2386847Z",
+        "elapsedSeconds": 240.0663932,
+        "framesWritten": 3038,
+        "workingSetBytes": 37584896,
+        "cpuMilliseconds": 2812.5
+      },
+      {
+        "utc": "2026-11-01T22:25:10.2104669Z",
+        "elapsedSeconds": 270.0382352,
+        "framesWritten": 3422,
+        "workingSetBytes": 37478400,
+        "cpuMilliseconds": 3171.875
+      },
+      {
+        "utc": "2026-11-01T22:25:40.1962284Z",
+        "elapsedSeconds": 300.02451859999996,
+        "framesWritten": 3806,
+        "workingSetBytes": 37703680,
+        "cpuMilliseconds": 3468.75
+      },
+      {
+        "utc": "2026-11-01T22:26:10.1902031Z",
+        "elapsedSeconds": 330.0176427,
+        "framesWritten": 4191,
+        "workingSetBytes": 37777408,
+        "cpuMilliseconds": 3828.125
+      },
+      {
+        "utc": "2026-11-01T22:26:40.2303321Z",
+        "elapsedSeconds": 360.0582324,
+        "framesWritten": 4578,
+        "workingSetBytes": 37687296,
+        "cpuMilliseconds": 4093.75
+      },
+      {
+        "utc": "2026-11-01T22:27:10.2406244Z",
+        "elapsedSeconds": 390.0686472,
+        "framesWritten": 4964,
+        "workingSetBytes": 38023168,
+        "cpuMilliseconds": 4500
+      },
+      {
+        "utc": "2026-11-01T22:27:40.2342664Z",
+        "elapsedSeconds": 420.061984,
+        "framesWritten": 5351,
+        "workingSetBytes": 38043648,
+        "cpuMilliseconds": 4968.75
+      },
+      {
+        "utc": "2026-11-01T22:28:10.1934033Z",
+        "elapsedSeconds": 450.02120709999997,
+        "framesWritten": 5737,
+        "workingSetBytes": 37986304,
+        "cpuMilliseconds": 5375
+      },
+      {
+        "utc": "2026-11-01T22:28:40.2357695Z",
+        "elapsedSeconds": 480.0637134,
+        "framesWritten": 6125,
+        "workingSetBytes": 38027264,
+        "cpuMilliseconds": 5703.125
+      },
+      {
+        "utc": "2026-11-01T22:29:10.1754838Z",
+        "elapsedSeconds": 510.00329469999997,
+        "framesWritten": 6509,
+        "workingSetBytes": 37957632,
+        "cpuMilliseconds": 6062.5
+      },
+      {
+        "utc": "2026-11-01T22:29:40.188131Z",
+        "elapsedSeconds": 540.016158,
+        "framesWritten": 6895,
+        "workingSetBytes": 38043648,
+        "cpuMilliseconds": 6593.75
+      },
+      {
+        "utc": "2026-11-01T22:30:10.2323697Z",
+        "elapsedSeconds": 570.0604983,
+        "framesWritten": 7282,
+        "workingSetBytes": 38014976,
+        "cpuMilliseconds": 7031.25
+      }
+    ],
+    "isolationMaintained": true,
+    "normalModeRestored": true,
+    "rainbowCommandAccepted": true,
+    "sdkServicesRestored": [
+      "Razer Chroma SDK Service",
+      "Razer Chroma SDK Server"
+    ],
+    "nativeRegistrationRemoved": true,
+    "cleanupError": null,
+    "userStartObservation": "Sim, animação acompanhando",
+    "userEndObservation": "Sim, permaneceu normal e voltou ao arco-íris",
+    "physicalRecoveryConfirmed": true
+  },
+  "usbReconnect": {
+    "run": "20261101-223125-218",
+    "probeSha256": "A632F6B8AB8299BD95F255865B9098525D92AF52EE71E1CACB0A70D86D25170D",
+    "halSha256": "FFBB59820E71E65EE6E8CCF37FBF8DBFFC2C5AFA6479A6519132881141E2223B",
+    "lightingServicePid": 52180,
+    "startedUtc": "2026-11-01T22:31:36.4120088Z",
+    "finishedUtc": "2026-11-01T22:32:25.6330971Z",
+    "maximumSeconds": 180,
+    "stopReason": "stop-file",
+    "completed": true,
+    "error": null,
+    "framesWritten": 484,
+    "sourceMetrics": {
+      "Polls": 556,
+      "NewFrames": 484,
+      "UsbLifecycle": {
+        "Reconnections": 1,
+        "Events": [
+          {
+            "state": "disconnected",
+            "utc": "2026-11-01T22:31:49.4966415Z"
+          },
+          {
+            "state": "reconnected",
+            "utc": "2026-11-01T22:31:55.8789934Z"
+          }
+        ]
+      }
+    },
+    "reconnectEventIntervalSeconds": 6.0,
+    "sameLightingServiceProcessVerifiedDuringReconnect": true,
+    "workerCpuMilliseconds": 609.375,
+    "workerPeakWorkingSetBytes": 37744640,
+    "isolationMaintained": true,
+    "normalModeRestored": true,
+    "rainbowCommandAccepted": true,
+    "sdkServicesRestored": [
+      "Razer Chroma SDK Service",
+      "Razer Chroma SDK Server"
+    ],
+    "nativeRegistrationRemoved": true,
+    "cleanupError": null,
+    "physicalResumeUserObservation": "Reconectei e voltou a acompanhar",
+    "physicalPostCleanupUserObservation": "Sim, tudo normal",
+    "physicalRainbowRecoveryAndOtherDevicesConfirmed": true
+  },
+  "automatedPreparation": {
+    "lifecycle": 5,
+    "nativeBridge": 5,
+    "realPipeWithSimulatedUsbRecovery": 1,
+    "simulatedUsbReconnectCases": 3,
+    "hardwareProof": false
+  },
+  "limitations": [
+    "Ten-minute run is not daily-use certification",
+    "One physical unplug/replug cycle on the same port",
+    "Opt-in USB recovery, maximum 60-second reopen window",
+    "Razer filter still installed",
+    "Known rainbow recovery only, arbitrary previous profiles unreadable",
+    "No autostart enabled"
+  ],
+  "finalServiceStates": {
+    "ArmouryCrateService": "Running/Auto",
+    "CorsairDeviceControlService": "Running/Manual",
+    "LightingService": "Running/Auto",
+    "Razer Chroma SDK Service": "Running/Auto",
+    "Razer Chroma SDK Server": "Running/Auto"
+  },
+  "finalTestRoundClosed": true
+}

@@ -15,12 +15,18 @@ internal static class RazerVolatileLifecycleTests
         internal int ModeWrites,RestoreAttempts,RainbowWrites;
         internal byte[] LastFrame;
         internal bool StopOnFrame=true;
+        internal bool Win32FrameFailureOnce;
+        internal bool InitModeFailureOnce;
         internal Action AfterFrame;
         internal string Directory;
         public byte[] Exchange(byte[] request,bool writeAck)
         {
             byte[] response=(byte[])request.Clone(); response[1]=2;
-            if(request[7]==0 && request[8]==0x84) response[9]=Mode;
+            if(request[7]==0 && request[8]==0x84)
+            {
+                if(InitModeFailureOnce) { InitModeFailureOnce=false; throw new InvalidOperationException("Injected USB initialization delay"); }
+                response[9]=Mode;
+            }
             if(request[7]==0 && request[8]==4)
             {
                 ModeWrites++;
@@ -33,6 +39,7 @@ internal static class RazerVolatileLifecycleTests
             }
             if(request[7]==0x0f && request[8]==3)
             {
+                if(Win32FrameFailureOnce) { Win32FrameFailureOnce=false; throw new System.ComponentModel.Win32Exception(1167,"Injected USB unplug"); }
                 if(FailFrame) throw new IOException("Injected frame failure");
                 LastFrame=(byte[])request.Clone();
                 if(StopOnFrame) File.WriteAllText(Path.Combine(Directory,"stop-test"),"");
@@ -110,5 +117,32 @@ internal static class RazerVolatileLifecycleTests
             }
         }
         Console.WriteLine("{\"pipeDisconnectRecoveryTestPassed\":true,\"ipc\":\"real Windows named pipe\",\"usb\":\"simulated\",\"hardwareAccess\":false}");
+        string reconnectDirectory=Path.Combine(suite,"usb-reconnect");
+        var unplugged=new Fake { Directory=reconnectDirectory,Win32FrameFailureOnce=true };
+        var returned=new Fake { Directory=reconnectDirectory };
+        var initializing=new Fake { Directory=reconnectDirectory,InitModeFailureOnce=true };
+        int opened=0;
+        using(var control=new ReconnectableHidControl(()=>++opened==1 ? unplugged : opened==2 ? initializing : returned,()=>false,null))
+        {
+            if(RazerVolatileExperiment.RunFromRainbow(reconnectDirectory,1,()=>control,true)!=0 || control.Reconnections!=1 || !unplugged.Disposed || !initializing.Disposed || opened!=3 || returned.Mode!=0 || returned.RainbowWrites!=1)
+                throw new Exception("USB reopen did not resume frame and restore known baseline");
+        }
+        string cancelDirectory=Path.Combine(suite,"usb-reconnect-cancel");
+        var canceledUsb=new Fake { Directory=cancelDirectory,Win32FrameFailureOnce=true };
+        using(var control=new ReconnectableHidControl(()=>canceledUsb,()=>true,null))
+        {
+            if(RazerVolatileExperiment.RunFromRainbow(cancelDirectory,1,()=>control,true)!=2 || (bool)Read(cancelDirectory)["ModeRestored"] || !Read(cancelDirectory).ContainsKey("RestoreError"))
+                throw new Exception("Missing USB during cancellation was falsely reported restored");
+        }
+        string unknownDirectory=Path.Combine(suite,"usb-reconnect-unknown-mode");
+        var oldUsb=new Fake { Directory=unknownDirectory,Win32FrameFailureOnce=true };
+        var unknownUsb=new Fake { Directory=unknownDirectory,Mode=2 };
+        opened=0;
+        using(var control=new ReconnectableHidControl(()=>++opened==1 ? oldUsb : unknownUsb,()=>false,null))
+        {
+            if(RazerVolatileExperiment.RunFromRainbow(unknownDirectory,1,()=>control,true)!=2 || unknownUsb.ModeWrites!=0 || !unknownUsb.Disposed)
+                throw new Exception("Unknown reconnect mode was modified");
+        }
+        Console.WriteLine("{\"usbReconnectAdapterTestsPassed\":3,\"usb\":\"simulated\",\"hardwareAccess\":false}");
     }
 }
