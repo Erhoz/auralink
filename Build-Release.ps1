@@ -30,6 +30,7 @@ $manifest=Join-Path $repo 'packaging\app.manifest'
 function Compile([string]$Target,[string]$Kind,[string[]]$Sources,[string[]]$Extra=@()){
     $paths=@($Sources | ForEach-Object {Join-Path $repo $_})+@($info)
     $platform=if($Kind -eq 'library'){'anycpu'}else{'x64'}
+    if($Kind -ne 'library'){$Extra+= '/win32icon:'+(Join-Path $repo 'assets\AuraLink.ico')}
     & $compiler /nologo "/target:$Kind" "/platform:$platform" /optimize+ /warnaserror+ /utf8output /codepage:65001 /reference:System.Web.Extensions.dll "/out:$Target" @Extra $paths
     if($LASTEXITCODE -ne 0){throw "Compilation failed: $Target"}
 }
@@ -37,7 +38,7 @@ $capability=Join-Path $work 'Capability.xml'
 (Get-Content (Join-Path $repo 'src\DiagnosticHal\Capability.xml') -Raw).Replace('AuraLink Diagnostic (no hardware)','AuraLink Razer Base Station Chroma').Replace('AuraLink Diagnostic LED 0','Base Station LEDs') | Set-Content -LiteralPath $capability -Encoding UTF8
 Compile (Join-Path $payload 'bin\AuraLink.DiagnosticHal.dll') 'library' @('src\Core\FramePipe.cs','src\Core\DiagnosticSink.cs','src\DiagnosticHal\Contracts.cs','src\DiagnosticHal\DiagnosticHal.cs') @("/resource:$capability,AuraLink.Capability.xml",'/define:AURALINK_RELEASE')
 Compile (Join-Path $payload 'bin\AuraLink.Worker.exe') 'exe' @('src\Core\RgbColor.cs','src\Core\FramePipe.cs','src\Adapters\Asus\HalPipeFrameSource.cs','src\Adapters\Razer\HidMetadata.cs','src\Adapters\Razer\BaseStationProtocol.cs','src\Adapters\Razer\VolatileFrameProtocol.cs','src\Adapters\Razer\HidFeatureSession.cs','src\Adapters\Razer\ReconnectableHidControl.cs','tools\RazerVolatileExperiment.cs','src\Desktop\WorkerProgram.cs') @("/win32manifest:$manifest")
-Compile (Join-Path $payload 'AuraLink.exe') 'winexe' @('src\Desktop\Program.cs') @('/reference:System.Windows.Forms.dll','/reference:System.Drawing.dll',"/win32manifest:$manifest")
+Compile (Join-Path $payload 'AuraLink.exe') 'winexe' @('src\Desktop\Program.cs','src\Desktop\StartupTask.cs','src\Adapters\Razer\HidMetadata.cs') @('/reference:System.Windows.Forms.dll','/reference:System.Drawing.dll','/reference:System.ServiceProcess.dll','/reference:Microsoft.CSharp.dll',"/win32manifest:$manifest")
 Copy-Item (Join-Path $repo 'packaging\Session.ps1') (Join-Path $payload 'scripts\Session.ps1')
 Copy-Item (Join-Path $repo 'Register-DiagnosticHal.ps1') (Join-Path $payload 'scripts\Register-DiagnosticHal.ps1')
 foreach($name in @('README.txt','NOTICE.txt')){
@@ -55,7 +56,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 $zip=Join-Path $work 'payload.zip'
 [IO.Compression.ZipFile]::CreateFromDirectory($payload,$zip)
 $setup=Join-Path $output ("AuraLink-$version-Setup-x64.exe")
-Compile $setup 'winexe' @('src\Packaging\Setup.cs') @('/reference:System.Windows.Forms.dll','/reference:System.Drawing.dll','/reference:System.IO.Compression.dll','/reference:System.IO.Compression.FileSystem.dll','/reference:Microsoft.CSharp.dll',"/resource:$zip,AuraLink.Payload.zip","/win32manifest:$manifest")
+Compile $setup 'winexe' @('src\Packaging\Setup.cs','src\Desktop\StartupTask.cs') @('/reference:System.Windows.Forms.dll','/reference:System.Drawing.dll','/reference:System.IO.Compression.dll','/reference:System.IO.Compression.FileSystem.dll','/reference:Microsoft.CSharp.dll',"/resource:$zip,AuraLink.Payload.zip","/win32manifest:$manifest")
 $verify=Join-Path $work 'installer-verification.json'
 $p=Start-Process -FilePath $setup -ArgumentList ('--verify-payload "{0}"' -f $verify) -WindowStyle Hidden -PassThru
 $null=$p.Handle
@@ -68,7 +69,7 @@ $download=Join-Path $output ("AuraLink-$version-windows-x64.zip")
 if(Test-Path -LiteralPath $download){Remove-Item -LiteralPath $download}
 [IO.Compression.ZipFile]::CreateFromDirectory($bundle,$download)
 $build=Join-Path $output ("AuraLink-$version-build.json")
-$metadata=[ordered]@{version=$version;sourceCommit=$commit;dirty=$dirty;builtUtc=[DateTime]::UtcNow.ToString('o');unsigned=$true;installerPayloadVerification=(Get-Content $verify -Raw | ConvertFrom-Json);hardwareValidation='Backend validated before packaging; no new hardware rounds or real installation/uninstallation executed for this release';artifacts=@((Get-Item $setup),(Get-Item $download) | ForEach-Object {@{name=$_.Name;sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant();bytes=$_.Length}})}
+$metadata=[ordered]@{version=$version;sourceCommit=$commit;dirty=$dirty;builtUtc=[DateTime]::UtcNow.ToString('o');unsigned=$true;automaticStartup=$true;trayApplication=$true;persistentProvider=$true;installerPayloadVerification=(Get-Content $verify -Raw | ConvertFrom-Json);hardwareValidation='Backend previously hardware-validated. Updated installer, login startup and persistent provider verified without a new hardware/login round; old installation recovered and removed on user request.';artifacts=@((Get-Item $setup),(Get-Item $download) | ForEach-Object {@{name=$_.Name;sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant();bytes=$_.Length}})}
 [IO.File]::WriteAllText($build,($metadata | ConvertTo-Json -Depth 8),(New-Object Text.UTF8Encoding($false)))
 $lines=@($setup,$download,$build) | ForEach-Object {((Get-FileHash -LiteralPath $_ -Algorithm SHA256).Hash.ToLowerInvariant())+'  '+[IO.Path]::GetFileName($_)}
 [IO.File]::WriteAllLines((Join-Path $output 'SHA256SUMS.txt'),$lines,(New-Object Text.UTF8Encoding($false)))

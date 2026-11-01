@@ -49,7 +49,11 @@ internal static class RazerVolatileExperiment
         {
             try
             {
-                if(File.Exists(stop)) throw new InvalidOperationException("Stop file already exists");
+                if(File.Exists(stop))
+                {
+                    if(continuous){report["StopReason"]="stop-before-control";restored=true;return 0;}
+                    throw new InvalidOperationException("Stop file already exists");
+                }
                 byte[] mode=session.Exchange(BaseStationProtocol.Query("mode"),false);
                 report["OriginalMode"]=new int[]{mode[9],mode[10]};
                 note("ReadOriginalMode",mode);

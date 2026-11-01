@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([ValidateSet('Run','Recover')][string]$Action='Run',[int]$OwnerPid=0)
+param([ValidateSet('Run','Recover','Configure','UninstallProvider')][string]$Action='Run',[int]$OwnerPid=0)
 $ErrorActionPreference='Stop'
 $app=[IO.Path]::GetFullPath((Split-Path -Parent $PSScriptRoot))
 $expected=[IO.Path]::GetFullPath((Join-Path $env:ProgramFiles 'AuraLink\App'))
@@ -49,8 +49,14 @@ function Stop-Tracked([string]$Name){
     $service=Get-Service -Name $Name
     try{
         if(@($service.DependentServices | Where-Object Status -ne Stopped).Count){throw "Dependentes ativos de $Name; parada recusada."}
-        if($service.Status -eq 'Running'){$service.Stop();$service.WaitForStatus('Stopped',[TimeSpan]::FromSeconds(30))}
-        elseif($service.Status -ne 'Stopped'){throw "Estado inesperado de $Name."}
+        $deadline=[DateTime]::UtcNow.AddSeconds(30)
+        do{
+            $service.Refresh()
+            if($service.Status -eq 'Stopped'){return}
+            if($service.Status -eq 'Running' -and $service.CanStop){try{$service.Stop()}catch{}}
+            Start-Sleep -Milliseconds 250
+        }while([DateTime]::UtcNow -lt $deadline)
+        throw "Nao foi possivel parar $Name dentro de 30 segundos; nenhuma parada forcada foi usada."
     }finally{$service.Dispose()}
 }
 function Stop-Asus {
@@ -73,8 +79,41 @@ function Validate-State($Value){
     $sessionRoot=[IO.Path]::GetFullPath((Join-Path $data 'sessions'))+'\'
     if(-not ([IO.Path]::GetFullPath($Value.RunDirectory)).StartsWith($sessionRoot,[StringComparison]::OrdinalIgnoreCase)){throw 'Diretorio da sessao invalido.'}
 }
+$providerFile=Join-Path $data 'provider.json'
+function Configure-Provider([bool]$Remove){
+    if(Test-Path -LiteralPath $active){throw 'Pare ou recupere a sessao antes de alterar o provedor.'}
+    $record=$null
+    if(Test-Path -LiteralPath $providerFile){
+        $record=Get-Content -LiteralPath $providerFile -Raw | ConvertFrom-Json
+        if($record.Owner -ne 'AuraLink.PersistentProvider/v1' -or $record.AppRoot -ne $app){throw 'Provedor de outro proprietario.'}
+    }
+    $manifest=Join-Path $registration 'registration-Machine.json'
+    if(-not $Remove -and $record -and (Test-Path -LiteralPath $manifest)){return}
+    if($Remove -and -not(Test-Path -LiteralPath $manifest)){if($record){Remove-Item -LiteralPath $providerFile};return}
+    if(-not $record -and (Test-Path -LiteralPath $manifest)){throw 'Registro anterior precisa de recuperacao.'}
+    foreach($name in @('LightingService','ArmouryCrateService')){if((Get-Service $name).Status -ne 'Running'){throw "Inicie o Armoury Crate: $name nao esta ativo."}}
+    $changed=$false;$installed=$false
+    try{
+        $changed=$true;Stop-Tracked 'ArmouryCrateService';Stop-Tracked 'LightingService'
+        if($Remove){
+            & $register -Action Remove -Scope Machine -StateDirectory $registration | Out-Null
+            if(Test-Path -LiteralPath $providerFile){Remove-Item -LiteralPath $providerFile}
+        }else{
+            & $register -Action Install -Scope Machine -Discovery -AssemblyPath (Join-Path $app 'bin\AuraLink.DiagnosticHal.dll') -StateDirectory $registration -ProductVersion '1.0.0' -DisplayName 'AuraLink' | Out-Null
+            $installed=$true
+            [IO.File]::WriteAllText($providerFile,(@{Owner='AuraLink.PersistentProvider/v1';AppRoot=$app;ConfiguredUtc=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json),(New-Object Text.UTF8Encoding($false)))
+        }
+        Start-Asus
+    }catch{
+        if($installed){
+            try{Stop-Tracked 'ArmouryCrateService';Stop-Tracked 'LightingService';& $register -Action Remove -Scope Machine -StateDirectory $registration | Out-Null;if(Test-Path $providerFile){Remove-Item -LiteralPath $providerFile}}catch{Write-Warning $_.Exception.Message}
+        }
+        throw
+    }finally{if($changed){Start-Asus}}
+}
 try{
-    if($Action -eq 'Recover' -and -not(Test-Path -LiteralPath $active) -and (Test-Path -LiteralPath (Join-Path $registration 'registration-Machine.json'))){
+    if($Action -in @('Configure','UninstallProvider')){Configure-Provider ($Action -eq 'UninstallProvider');exit 0}
+    if($Action -eq 'Recover' -and -not(Test-Path -LiteralPath $active) -and -not(Test-Path -LiteralPath $providerFile) -and (Test-Path -LiteralPath (Join-Path $registration 'registration-Machine.json'))){
         if(-not(Test-Path -LiteralPath $last)){throw 'Registro pendente sem historico de recuperacao. Consulte o suporte do AuraLink.'}
         $saved=Get-Content -LiteralPath $last -Raw | ConvertFrom-Json;Validate-State $saved
         Copy-Item -LiteralPath $last -Destination $active
@@ -90,10 +129,12 @@ try{
         if($state.WorkerPid){
             $old=Get-CimInstance Win32_Process -Filter "ProcessId=$($state.WorkerPid)"
             if($old){
-                if($old.ExecutablePath -ne $workerPath -or $old.CommandLine -notlike ('*'+$state.RunDirectory+'*')){throw 'Identidade do processo anterior divergente; recuperacao recusada.'}
-                New-Item -ItemType File -Path (Join-Path $state.RunDirectory 'stop-test') -Force | Out-Null
-                $p=Get-Process -Id $state.WorkerPid
-                try{if(-not $p.WaitForExit(20000)){$p.Kill();$p.WaitForExit()}}finally{$p.Dispose()}
+                if($old.ExecutablePath -ne $workerPath -or $old.CommandLine -notlike ('*'+$state.RunDirectory+'*')){$state.StaleWorkerPidIgnored=$true}
+                else{
+                    New-Item -ItemType File -Path (Join-Path $state.RunDirectory 'stop-test') -Force | Out-Null
+                    $p=Get-Process -Id $state.WorkerPid
+                    try{if(-not $p.WaitForExit(20000)){$p.Kill();$p.WaitForExit()}}finally{$p.Dispose()}
+                }
             }
         }
     }elseif($Action -eq 'Recover'){
@@ -106,20 +147,15 @@ try{
             if(-not $path.StartsWith($app+'\',[StringComparison]::OrdinalIgnoreCase) -or (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ne $item.Value){throw 'Arquivo instalado alterado ou ausente. Reinstale o AuraLink.'}
         }
         if(@(Get-Process RazerAppEngine -ErrorAction SilentlyContinue).Count){throw 'Feche o Razer Chroma, inclusive na bandeja, antes de iniciar.'}
-        if(Test-Path -LiteralPath (Join-Path $registration 'registration-Machine.json')){throw 'Registro AuraLink anterior precisa de recuperacao.'}
+        Configure-Provider $false
         foreach($name in @('LightingService','ArmouryCrateService')){if((Get-Service $name).Status -ne 'Running'){throw "Inicie o Armoury Crate: $name nao esta ativo."}}
         $run=Join-Path (Join-Path $data 'sessions') ([Guid]::NewGuid().ToString('N'))
         New-Item -ItemType Directory -Path $run -Force | Out-Null
         $before=@(Get-CimInstance Win32_Service | Where-Object Name -in @('LightingService','ArmouryCrateService','CorsairDeviceControlService','Razer Chroma SDK Server','Razer Chroma SDK Service') | Select-Object Name,State,StartMode,ProcessId)
-        $state=[ordered]@{Owner='AuraLink.ReleaseSession/v1';AppRoot=$app;Version=$package.version;RunDirectory=$run;StartedUtc=[DateTime]::UtcNow.ToString('o');Completed=$false;Error=$null;CleanupErrors=@();Before=$before;StoppedSdk=@();AsusTouched=$false;RegistryAttempted=$false;WorkerPid=0;WorkerExitCode=$null}
+        $state=[ordered]@{Owner='AuraLink.ReleaseSession/v1';AppRoot=$app;Version=$package.version;RunDirectory=$run;StartedUtc=[DateTime]::UtcNow.ToString('o');Completed=$false;Error=$null;CleanupErrors=@();Before=$before;StoppedSdk=@();AsusTouched=$false;RegistryAttempted=$false;PersistentProvider=$true;WorkerPid=0;WorkerExitCode=$null}
         Save-State
         $auraProfilePath='C:\Program Files (x86)\LightingService\LastProfile.xml'
         if(Test-Path -LiteralPath $auraProfilePath){Copy-Item -LiteralPath $auraProfilePath -Destination (Join-Path $run 'LastProfile-before.xml')}
-        if(Test-Path -LiteralPath (Join-Path $registration 'registration-Machine.json')){throw 'Registro AuraLink anterior precisa de recuperacao.'}
-        Stop-Asus
-        $state.RegistryAttempted=$true;Save-State
-        & $register -Action Install -Scope Machine -Discovery -AssemblyPath (Join-Path $app 'bin\AuraLink.DiagnosticHal.dll') -StateDirectory $registration -ProductVersion '1.0.0' -DisplayName 'AuraLink' | Out-Null
-        Start-Asus
         foreach($name in @('Razer Chroma SDK Server','Razer Chroma SDK Service')){
             if(@($before | Where-Object {$_.Name -eq $name -and $_.State -eq 'Running'}).Count){$state.StoppedSdk+= $name;Save-State;Stop-Tracked $name}
         }
@@ -164,9 +200,12 @@ try{
             }
         }catch{$state.CleanupErrors+= $_.Exception.Message}
         foreach($name in @('Razer Chroma SDK Service','Razer Chroma SDK Server')){
-            if(@($state.Before | Where-Object {$_.Name -eq $name -and $_.State -eq 'Running'}).Count -or @($state.RecoveryBefore | Where-Object {$_.Name -eq $name -and $_.State -eq 'Running'}).Count){try{Ensure-Running $name}catch{$state.CleanupErrors+= $_.Exception.Message}}
+            if(@($state.Before | Where-Object {$_.Name -eq $name -and $_.State -eq 'Running'}).Count -or @($state.RecoveryBefore | Where-Object {$_.Name -eq $name -and $_.State -eq 'Running'}).Count){
+                if(Get-Service -Name $name -ErrorAction SilentlyContinue){try{Ensure-Running $name}catch{$state.CleanupErrors+= $_.Exception.Message}}
+                else{$state.MissingServicesNotRecreated=@($state.MissingServicesNotRecreated)+@($name)}
+            }
         }
-        if($state.AsusTouched){
+        if($state.AsusTouched -and -not $state.PersistentProvider){
             try{
                 $ownedManifest=Join-Path $registration 'registration-Machine.json'
                 if(Test-Path -LiteralPath $ownedManifest){Stop-Asus;& $register -Action Remove -Scope Machine -StateDirectory $registration | Out-Null}

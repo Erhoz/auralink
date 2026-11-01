@@ -25,6 +25,7 @@ internal sealed class InstallRecord
     public string Owner { get; set; }
     public string Version { get; set; }
     public string[] Files { get; set; }
+    public bool AutomaticStartup { get; set; }
 }
 internal sealed class SessionGate : IDisposable
 {
@@ -125,7 +126,7 @@ internal static class SetupProgram
             dynamic link=shell.CreateShortcut(path);
             if(File.Exists(path) && !String.Equals((string)link.TargetPath,target,StringComparison.OrdinalIgnoreCase)){if(remove)continue;throw new IOException("Atalho existente de outra instalação.");}
             if(remove){if(File.Exists(path))File.Delete(path);}
-            else{link.TargetPath=target;link.Arguments=pair[2];link.WorkingDirectory=Root;link.Save();}
+            else{link.TargetPath=target;link.Arguments=pair[2];link.WorkingDirectory=Root;link.IconLocation=target+",0";link.Save();}
             System.Runtime.InteropServices.Marshal.FinalReleaseComObject(link);
         }
         System.Runtime.InteropServices.Marshal.FinalReleaseComObject(shell);
@@ -145,27 +146,71 @@ internal static class SetupProgram
             Directory.CreateDirectory(path);Protect(path);
         }
     }
-    private static void Install()
+    private static void StopInstalledApp()
     {
+        foreach(var process in Process.GetProcessesByName("AuraLink"))
+        using(process)
+        {
+            if(!String.Equals(process.MainModule.FileName,Within(Root,"AuraLink.exe"),StringComparison.OrdinalIgnoreCase))continue;
+            if(!StartupTask.Signal(StartupTask.ExitEvent))process.CloseMainWindow();
+            var wait=Stopwatch.StartNew();
+            while(!process.WaitForExit(100)){Application.DoEvents();if(wait.Elapsed.TotalSeconds>30)throw new IOException("Feche o AuraLink antes de continuar. Nenhum processo foi encerrado à força.");}
+        }
+    }
+    private static bool ProviderConfigured { get { return File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),"AuraLink","Runtime","provider.json")); } }
+    private static void ProviderAction(string action)
+    {
+        string engine=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows),"System32","WindowsPowerShell","v1.0","powershell.exe");
+        string script=Within(Root,"scripts/Session.ps1");
+        string log=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),"AuraLink","Runtime","installer-provider.log");
+        using(var process=new Process{StartInfo=new ProcessStartInfo(engine,"-NoProfile -NonInteractive -ExecutionPolicy Bypass -File \""+script+"\" -Action "+action){UseShellExecute=false,CreateNoWindow=true,RedirectStandardError=true,RedirectStandardOutput=true}})
+        {
+            process.ErrorDataReceived+=(s,e)=>{if(e.Data!=null){try{File.AppendAllText(log,e.Data+Environment.NewLine);}catch(IOException){}}};
+            process.OutputDataReceived+=(s,e)=>{};process.Start();process.BeginErrorReadLine();process.BeginOutputReadLine();
+            var wait=Stopwatch.StartNew();
+            while(!process.WaitForExit(100)){Application.DoEvents();if(wait.Elapsed.TotalSeconds>240)throw new IOException("A configuração ainda está em execução. Aguarde e use Recuperar antes de tentar novamente.");}
+            process.WaitForExit();if(process.ExitCode!=0)throw new IOException("Não foi possível configurar o provedor. Os arquivos foram preservados; consulte "+log);
+        }
+    }
+    private static void Install(string requestedSid)
+    {
+        if(requestedSid!=StartupTask.UserSid)throw new IOException("A inicialização automática requer instalar com a própria conta Windows administradora, sem fornecer credenciais de outra conta.");
         using(var framework=Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\NET Framework Setup\\NDP\\v4\\Full"))
             if(framework==null || Convert.ToInt32(framework.GetValue("Release",0))<528040)throw new IOException("Instale o .NET Framework 4.8 antes de continuar.");
+        StopInstalledApp();
+        if(ProviderConfigured)ProviderAction("UninstallProvider");
+        bool? oldTask=null;
         using(var gate=new SessionGate())using(var zip=OpenPayload())
         {
             PayloadManifest manifest=Validate(zip);
             NoReparseParents(Root);
+            var oldUninstall=new Dictionary<string,Tuple<object,RegistryValueKind>>();
             using(var existing=Registry.LocalMachine.OpenSubKey(UninstallKey))
-            {if(existing!=null && Convert.ToString(existing.GetValue("AuraLinkOwner"))!=Owner)throw new IOException("Entrada de desinstalação de outro proprietário.");}
-            if(Directory.Exists(Root) && Directory.GetFileSystemEntries(Root).Length>0)throw new IOException("O AuraLink já está instalado. Remova a versão anterior antes de instalar este beta.");
+            {if(existing!=null){if(Convert.ToString(existing.GetValue("AuraLinkOwner"))!=Owner)throw new IOException("Entrada de desinstalação de outro proprietário.");foreach(string key in existing.GetValueNames())oldUninstall[key]=Tuple.Create(existing.GetValue(key),existing.GetValueKind(key));}}
             PrepareRuntimeDirectory();
             var copied=new List<string>();
+            InstallRecord previous=null;string backup=null;
+            if(Directory.Exists(Root) && Directory.GetFileSystemEntries(Root).Length>0)
+            {
+                string marker=Within(Root,"installation.json");
+                if(!File.Exists(marker))throw new IOException("Pasta de instalação preexistente sem propriedade AuraLink.");
+                previous=Json.Deserialize<InstallRecord>(File.ReadAllText(marker));
+                if(previous==null || previous.Owner!=Owner || previous.Files==null)throw new IOException("Instalação de outro proprietário.");
+                foreach(string relative in previous.Files)Within(Root,relative);
+                foreach(var entry in zip.Entries)if(File.Exists(Within(Root,entry.FullName)) && !previous.Files.Any(f=>String.Equals(f.Replace('\\','/'),entry.FullName.Replace('\\','/'),StringComparison.OrdinalIgnoreCase)))throw new IOException("Arquivo de outra origem no destino.");
+                backup=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),"AuraLink","installer-backups",Guid.NewGuid().ToString("N"));
+                foreach(string relative in previous.Files){string from=Within(Root,relative);if(File.Exists(from)){string to=Within(backup,relative);Directory.CreateDirectory(Path.GetDirectoryName(to));File.Copy(from,to,false);}}
+            }
             Directory.CreateDirectory(Root);Protect(Root);
+            oldTask=StartupTask.SetEnabled(Root,false);
             try
             {
                 // Journal the known file list before extraction, including partial writes.
                 copied.AddRange(zip.Entries.Select(e=>e.FullName));copied.Add("Uninstall.exe");copied.Add("installation.json");
+                if(previous!=null)foreach(string relative in previous.Files){string from=Within(Root,relative);if(File.Exists(from))File.Delete(from);}
                 Extract(zip,Root);
                 File.Copy(Application.ExecutablePath,Within(Root,"Uninstall.exe"),false);
-                File.WriteAllText(Within(Root,"installation.json"),Json.Serialize(new InstallRecord{Owner=Owner,Version=Version,Files=copied.ToArray()}));
+                File.WriteAllText(Within(Root,"installation.json"),Json.Serialize(new InstallRecord{Owner=Owner,Version=Version,Files=copied.ToArray(),AutomaticStartup=true}));
                 Shortcut(false);
                 using(var key=Registry.LocalMachine.CreateSubKey(UninstallKey))
                 {
@@ -175,17 +220,24 @@ internal static class SetupProgram
                     key.SetValue("UninstallString","\""+Within(Root,"Uninstall.exe")+"\" --uninstall");key.SetValue("DisplayIcon",Within(Root,"AuraLink.exe"));
                     key.SetValue("URLInfoAbout","https://github.com/Erhoz/auralink");key.SetValue("NoModify",1,RegistryValueKind.DWord);key.SetValue("NoRepair",1,RegistryValueKind.DWord);
                 }
-                MessageBox.Show("AuraLink instalado. Abra pelo menu Iniciar quando quiser sincronizar. Nenhuma inicialização automática foi configurada.","AuraLink");
+                StartupTask.Register(Root,false);
             }
             catch
             {
                 try{Shortcut(true);}catch(Exception){}
-                foreach(string relative in copied){string path=Within(Root,relative);if(File.Exists(path))File.Delete(path);}
+                foreach(string relative in copied){string path=Within(Root,relative);try{if(File.Exists(path))File.Delete(path);}catch(IOException){}}
                 using(var key=Registry.LocalMachine.OpenSubKey(UninstallKey))
                 {if(key!=null && (string)key.GetValue("AuraLinkOwner")==Owner){key.Close();Registry.LocalMachine.DeleteSubKeyTree(UninstallKey,false);}}
-                RemoveEmptyDirectories();throw;
+                if(previous!=null){foreach(string relative in previous.Files){string from=Within(backup,relative);if(File.Exists(from)){string to=Within(Root,relative);Directory.CreateDirectory(Path.GetDirectoryName(to));File.Copy(from,to,true);}}Shortcut(false);if(oldUninstall.Count>0)using(var key=Registry.LocalMachine.CreateSubKey(UninstallKey))foreach(var value in oldUninstall)key.SetValue(value.Key,value.Value.Item1,value.Value.Item2);}
+                else RemoveEmptyDirectories();
+                if(oldTask.HasValue)StartupTask.SetEnabled(Root,oldTask.Value);else StartupTask.Remove(Root);
+                throw;
             }
         }
+        ProviderAction("Configure");
+        StartupTask.SetEnabled(Root,true);
+        if(!StartupTask.TryRun(Root))throw new IOException("O início automático não pôde ser acionado. Abra o AuraLink pelo menu Iniciar.");
+        MessageBox.Show("AuraLink instalado e iniciado na bandeja. Ele também iniciará automaticamente ao entrar no Windows. Na primeira vez, selecione o suporte no Aura Sync.","AuraLink");
     }
     private static void RemoveEmptyDirectories(string directory=null)
     {
@@ -196,6 +248,8 @@ internal static class SetupProgram
     }
     private static void Remove()
     {
+        StopInstalledApp();
+        if(ProviderConfigured)ProviderAction("UninstallProvider");
         using(var gate=new SessionGate())
         {
             string marker=Within(Root,"installation.json");
@@ -206,7 +260,7 @@ internal static class SetupProgram
                 using(var hive=RegistryKey.OpenBaseKey(RegistryHive.LocalMachine,view))
                 using(var key=hive.OpenSubKey("SOFTWARE\\Classes\\CLSID\\{9FE19BA9-9EF2-4BF2-96AC-20983C2EB1A6}\\InprocServer32"))
                 {if(key!=null && Convert.ToString(key.GetValue("CodeBase")).IndexOf(Root.Replace('\\','/'),StringComparison.OrdinalIgnoreCase)>=0)throw new IOException("Recupere a sessão antes de remover o HAL.");}
-            Shortcut(true);
+            StartupTask.Remove(Root);Shortcut(true);
             foreach(string relative in record.Files){string path=Within(Root,relative);if(File.Exists(path))File.Delete(path);}
             using(var key=Registry.LocalMachine.OpenSubKey(UninstallKey))
             {if(key!=null && (string)key.GetValue("AuraLinkOwner")==Owner && String.Equals((string)key.GetValue("InstallLocation"),Root,StringComparison.OrdinalIgnoreCase)){key.Close();Registry.LocalMachine.DeleteSubKeyTree(UninstallKey,false);}}
@@ -235,7 +289,7 @@ internal static class SetupProgram
                 return 0;
             }
             if(!Environment.Is64BitOperatingSystem)throw new PlatformNotSupportedException("Este beta requer Windows x64.");
-            if(args.Length>0 && args[0]=="--install"){if(!Admin){Elevate("--install");return 0;}Install();return 0;}
+            if(args.Length>0 && args[0]=="--install"){string sid=args.Length==2 ? args[1] : StartupTask.UserSid;if(!Admin){Elevate("--install "+sid);return 0;}using(var progress=new Form{Text="Instalando AuraLink",ClientSize=new Size(440,100),ControlBox=false,StartPosition=FormStartPosition.CenterScreen}){progress.Icon=Icon.ExtractAssociatedIcon(Application.ExecutablePath);progress.Controls.Add(new Label{Text="Instalando e configurando a inicialização automática…\nAguarde a conclusão.",Dock=DockStyle.Fill,Padding=new Padding(20),Font=new Font("Segoe UI",10)});progress.Show();Application.DoEvents();Install(sid);}return 0;}
             if(args.Length>0 && args[0]=="--uninstall")
             {
                 if(!Admin){Elevate("--uninstall");return 0;}
@@ -248,10 +302,11 @@ internal static class SetupProgram
             {try{using(var parent=Process.GetProcessById(int.Parse(args[1])))if(!parent.WaitForExit(10000))throw new IOException("Feche o desinstalador anterior.");}catch(ArgumentException){}if(!Admin)throw new UnauthorizedAccessException();Remove();return 0;}
             using(var zip=OpenPayload())Validate(zip);
             var form=new Form{Text="Instalar AuraLink "+Version,ClientSize=new Size(520,245),FormBorderStyle=FormBorderStyle.FixedDialog,MaximizeBox=false,StartPosition=FormStartPosition.CenterScreen,Font=new Font("Segoe UI",10)};
+            form.Icon=Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             form.Controls.Add(new Label{Text="AuraLink "+Version,Font=new Font("Segoe UI",17,FontStyle.Bold),Location=new Point(22,18),AutoSize=true});
-            form.Controls.Add(new Label{Text="Integração não oficial com ASUS Aura Sync.\nPara o Razer Base Station Chroma original (1532:0F08).\n\nRequer Armoury Crate, .NET Framework 4.8 e driver Razer.\nInstalação manual, sem inicialização automática.\nEste beta não possui assinatura digital.",Location=new Point(22,63),Size=new Size(478,126)});
+            form.Controls.Add(new Label{Text="Integração não oficial com ASUS Aura Sync.\nPara o Razer Base Station Chroma original (1532:0F08).\n\nRequer Armoury Crate, .NET Framework 4.8 e driver Razer.\nInicia após instalar e ao entrar no Windows, na bandeja.\nEste beta não possui assinatura digital.",Location=new Point(22,63),Size=new Size(478,126)});
             var install=new Button{Text="Instalar",Location=new Point(270,202),Size=new Size(105,30)};
-            install.Click+=(s,e)=>{try{Elevate("--install");form.Close();}catch(Exception error){MessageBox.Show(error.Message,"AuraLink");}};
+            install.Click+=(s,e)=>{try{Elevate("--install "+StartupTask.UserSid);form.Close();}catch(Exception error){MessageBox.Show(error.Message,"AuraLink");}};
             var close=new Button{Text="Fechar",Location=new Point(390,202),Size=new Size(105,30)};close.Click+=(s,e)=>form.Close();
             form.Controls.AddRange(new Control[]{install,close});Application.Run(form);return 0;
         }

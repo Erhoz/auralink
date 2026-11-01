@@ -1,16 +1,20 @@
 # AuraLink
 
+<img src="assets/AuraLink.svg" alt="AuraLink" width="72" />
+
 Integração **não oficial**, sem vínculo com ASUS, Razer ou Corsair, para apresentar dispositivos RGB externos ao Aura Sync do Armoury Crate.
 
 ## 1.0.0-beta.1 para Windows x64
 
 [Baixar o beta](https://github.com/Erhoz/auralink/releases/tag/v1.0.0-beta.1) · [Notas da versão](docs/releases/1.0.0-beta.1.md) · [Changelog](CHANGELOG.md)
 
-O primeiro dispositivo é o **Razer Base Station Chroma original `1532:0F08`**. Requer Armoury Crate funcionando, .NET Framework 4.8 e driver Razer já instalado. O pacote não contém componentes dos fabricantes e não habilita inicialização automática.
+O primeiro dispositivo é o **Razer Base Station Chroma original `1532:0F08`**. Requer conta Windows administradora, Armoury Crate funcionando, .NET Framework 4.8 e driver Razer já instalado. O pacote não contém componentes dos fabricantes.
 
-Instale, feche o Razer Chroma e abra AuraLink pelo menu Iniciar. Clique em **Iniciar**, aceite o UAC e reabra Aura Sync para selecionar o suporte. **Parar** ou fechar a janela encerra a sessão e recupera um arco-íris conhecido; **Recuperar** atende uma sessão interrompida. Para remover, pare a sessão e use Aplicativos do Windows.
+Feche o Razer Chroma e instale: o AuraLink já inicia na bandeja e volta a iniciar automaticamente no login, sem novo UAC. Na primeira vez, selecione o suporte no Aura Sync. Clique duas vezes no ícone para abrir a janela; fechar a janela só oculta, **Parar** pausa a sincronização e **Sair** encerra e recupera um arco-íris conhecido. A desinstalação remove a tarefa de login e o provedor próprio.
 
-O instalador não tem assinatura digital; compare seu SHA-256 com a release. O backend foi validado no hardware antes do empacotamento. Interface, instalador e sessão contínua são novos neste beta e não receberam outra rodada de hardware nem instalação/desinstalação real. Veja [construção e publicação](docs/publicacao.md) para reproduzir os artefatos.
+Esta é a republicação de `1.0.0-beta.1` com autostart e ícone, solicitada pelo usuário. A publicação manual anterior foi retirada; baixe novamente o instalador. O histórico de commits foi preservado.
+
+O instalador não tem assinatura digital; compare seu SHA-256 com a release. O backend foi validado no hardware antes do empacotamento. A revisão de autostart, bandeja e provedor persistente passou por verificação de pacote/definição do Agendador e simulações; o novo instalador e um login real não foram executados, nem outra rodada de hardware. Veja [construção e publicação](docs/publicacao.md).
 
 ## Evidências e investigação
 

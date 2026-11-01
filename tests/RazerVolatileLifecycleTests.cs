@@ -149,5 +149,10 @@ internal static class RazerVolatileLifecycleTests
             continuous.Mode!=0 || continuous.RainbowWrites!=1 || !(bool)Read(continuous.Directory)["ContinuousSession"] || !continuous.Disposed)
             throw new Exception("Continuous stop did not restore/dispose");
         Console.WriteLine("{\"continuousSessionStopTestPassed\":true,\"hardwareAccess\":false}");
+        string earlyDirectory=Path.Combine(suite,"continuous-stop-before-control");Directory.CreateDirectory(earlyDirectory);File.WriteAllText(Path.Combine(earlyDirectory,"stop-test"),"");
+        var early=new Fake { Directory=earlyDirectory };
+        if(RazerVolatileExperiment.RunFromRainbow(earlyDirectory,0,()=>early,true,()=>new RgbColor(1,2,3),"early stop",null,true)!=0 || early.ModeWrites!=0 || early.RestoreAttempts!=0 || !early.Disposed)
+            throw new Exception("Early continuous stop was reported as failure or touched lighting");
+        Console.WriteLine("{\"continuousEarlyStopTestPassed\":true,\"hardwareAccess\":false}");
     }
 }
