@@ -1,5 +1,7 @@
 # Canal de frames e estabilidade limitada
 
+**Validação visual concluída:** cores primárias, animação e recuperação do arco-íris confirmadas pelo usuário no canal pipe, com os demais dispositivos funcionando. Ensaio limitado de cerca de 100 segundos, 910 frames aplicados, sem erro de limpeza. Isso ainda não constitui teste prolongado ou reconexão USB física.
+
 Atualização de 1 de novembro de 2026. A [primeira integração física](aura-usb-primeiro-ciclo.md) validou Armoury → HAL próprio → USB usando JSONL provisório. Esta etapa substitui esse transporte por um named pipe Windows. Não instala serviço AuraLink nem inicialização automática.
 
 ## Arquitetura
@@ -50,8 +52,12 @@ O ensaio `20261101-201251-992` executou 300 segundos no LightingService real (PI
 
 O resultado comprova a comunicação real entre serviço e worker e sua estabilidade em estado estático por cinco minutos; **não comprova cores/animação observadas no novo transporte nem estabilidade prolongada**. A validação física anterior por JSONL continua registrada separadamente. CPU total do worker: 1.437,5 ms; pico de working set: 37.822.464 bytes. São métricas de uma execução, sem comparação de desempenho ou promessa de limite de memória.
 
-Ao atingir a duração, o worker confirmou modo `[0,0]` e aceitação do comando arco-íris. O helper restaurou os dois serviços SDK, removeu o registro próprio e renovou os consumidores ASUS sem erro. A inspeção final encontrou LightingService/ArmouryCrateService e os dois serviços SDK Running/Auto, e CorsairDeviceControlService Running/Manual. A observação física do estado após a limpeza continua separada e pendente até o usuário responder.
+Ao atingir a duração, o worker confirmou modo `[0,0]` e aceitação do comando arco-íris. O helper restaurou os dois serviços SDK, removeu o registro próprio e renovou os consumidores ASUS sem erro. A inspeção final encontrou LightingService/ArmouryCrateService e os dois serviços SDK Running/Auto, e CorsairDeviceControlService Running/Manual. A observação física da limpeza não foi obtida nesse primeiro ensaio; foi confirmada no segundo ensaio abaixo.
 
-Os guards de diagnóstico opcional e a supressão de log em Synchronize foram concluídos depois de iniciar essa execução; passaram nos testes da DLL real com pipe x86/x64 e na regressão COM/SDK, mas não ganharam uma segunda execução de máquina nesta janela. Hashes, métricas e distinções estão em [frame-pipe-2026-11-01.json](evidence/frame-pipe-2026-11-01.json).
+Os guards de diagnóstico opcional e a supressão de log em Synchronize foram concluídos depois de iniciar essa primeira execução. Passaram nos testes da DLL real com pipe x86/x64 e na regressão COM/SDK, e foram incluídos no novo ensaio visual abaixo. Hashes, métricas e distinções estão em [frame-pipe-2026-11-01.json](evidence/frame-pipe-2026-11-01.json).
 
-Próximo teste: repetir com o usuário presente, selecionar o suporte, conferir primárias e deixar um efeito animado ativo durante toda a janela. Depois avaliar teste prolongado e recuperação por reconexão física USB; estes dois últimos ainda não foram executados. Nenhum componente Razer foi desinstalado.
+O novo ensaio `20261101-202548-216` usou o HAL completo com canal pipe no LightingService PID 52000, AppEngine ausente e serviços SDK parados durante a saída. Após o usuário aceitar o UAC, a fase USB foi de 20:27:04.384 a 20:28:44.788 UTC. O usuário confirmou vermelho, verde e azul corretos; depois confirmou animação correta e demais dispositivos funcionando. Foram 1.393 consultas ao pipe e 910 frames aceitos por USB. CPU do worker: 968,75 ms; pico de working set: 37.376.000 bytes. A parada antecipada foi solicitada após as observações, dentro do limite de 180 segundos.
+
+O modo normal e o comando arco-íris foram confirmados pelo protocolo. O usuário confirmou visualmente que o arco-íris voltou e os demais dispositivos continuaram funcionando. Os dois serviços SDK foram restaurados, o registro próprio foi removido e a sessão temporária terminou sem erro. A inspeção final encontrou os mesmos estados de serviço descritos acima. Essa validação usa o novo pipe, sem consumir os logs como fonte de cor.
+
+Próximos testes: estabilidade prolongada e recuperação por desconexão/reconexão física USB; ainda não executados. O primeiro ensaio de cinco minutos acima continua sendo uma evidência estática distinta do novo ensaio animado. Nenhum componente Razer foi desinstalado e nenhuma inicialização automática foi configurada.
