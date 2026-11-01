@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "observed_at_utc": "2026-11-01T16:30:31.9916119Z",
+  "native_integration_proven": false,
+  "lighting_control_acquired": false,
+  "lighting_effects_sent": false,
+  "remote": "https://github.com/Erhoz/auralink.git",
+  "pushed": false,
+  "hardware": {
+    "razer": {"vid": "1532", "pid": "0F08", "present_only_pnp": true, "friendly_name": "Razer Base Station Chroma", "status": "OK", "rgb_tested": false},
+    "memory": {"part_number": "CMW32GX4M2E3200C16", "modules": 4, "bytes_per_module": 17179869184}
+  },
+  "versions": {
+    "armoury_service_uninstall_registry": "6.7.6.0",
+    "armoury_service_file": "6.7.4.0",
+    "lighting_service_file": "3.11.08.0",
+    "aura_sdk_file": "3.08.01.0",
+    "asus_dram_component": "1.1.31",
+    "corsair_plugin_file": "2.2.115",
+    "corsair_hal_registry": "2.0.0",
+    "corsair_device_control_service": "1.9.18",
+    "corsair_api_bundled_with_plugin": "1.7.4",
+    "synapse": null,
+    "chroma_sdk_in_standard_paths": false,
+    "windows_powershell": "5.1.26100.9818",
+    "powershell": "7.6.9",
+    "python": "3.14.3",
+    "dotnet_sdk_installed": false
+  },
+  "sha256": {
+    "corsairasusplugin64.dll": "bba035c0c36d65ce88fee3fa12afe84a5d8999bfb298607d09f5d32efda9047a",
+    "AuraSdk_x64.dll": "83709fec9e2210eb41d2be905211ae2bafedeec5d19c7f3f9b88d57186afec96",
+    "LightingService.exe": "638d037db804d3a60e2577e5cb9567429aacd0f167204604eb8b8988bf526139",
+    "CorsairDeviceControlService.exe": "b17367b72dbf23eeeb3b881e8e1fd6a17619f9cf5cb03657b8a18c17a4ff63ab"
+  },
+  "runtime": {
+    "corsair_clsid": "099B9EEB-5BBA-435C-A89E-212FEEEFA394",
+    "requested_hal_iid": "F2C8D5B4-3854-4325-8A4F-FD7C5072E3B9",
+    "activation_hresult": 0,
+    "supports_requested_interface": true,
+    "final_probe_calls_vendor_methods": false,
+    "initial_enumerate2_experiment": {"result": "inconclusive", "returned_integers": [-451465728, -289970208], "count": 0, "variant": null, "removed_from_delivered_probe": true, "abi_confirmed": false},
+    "aura_enumeration": {"state": "Timeout", "timeout_seconds": 10, "child_exit_code": -1, "switch_mode_called": false, "device_list_obtained": false},
+    "vendor_log_observations": ["CorsairLLAService not installed", "CDCSConnect: 1 in one run", "Corsair plugin attempted starting its service in one run"],
+    "services_before_and_immediately_after_final_run": {"ArmouryCrateService": "Running", "LightingService": "Running", "CorsairDeviceControlService": "Running"},
+    "later_service_observation": {"CorsairDeviceControlService": "Stopped", "start_type": "Manual", "cause_established": false},
+    "manufacturer_service_stop_commands_issued": false,
+    "corsair_service_started_to_restore_initial_state": true
+  },
+  "automated_tests": {"command": "python -m unittest discover -s tests -v", "passed": 3, "hardware_validation": false},
+  "sources": {"rgbnet_commit": "3c5af72b25c77971c21ccf96c13c41c62c8212f6", "jacknet_archived_via_github_api": true},
+  "limits": ["No AuraLink HAL registered", "No Armoury Crate UI validation", "No Razer RGB write", "No LED state captured", "No evidence of live colour readback under Armoury control"]
+}
