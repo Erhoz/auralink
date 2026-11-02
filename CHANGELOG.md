@@ -1,5 +1,8 @@
 # Changelog
 
+- Correção da primeira instalação: tarefa ainda ausente retorna `FileNotFoundException` (`0x80070002`) neste Windows. O instalador agora aceita essa ausência; falhas de permissão continuam sendo propagadas. Regressão automatizada adicionada.
+- Ícone também exibido em destaque no cabeçalho do instalador, além dos recursos dos executáveis, bandeja e atalhos.
+
 ## 1.0.0-beta.1 — republicação solicitada pelo usuário
 
 - Retirada da primeira publicação manual; mesma versão/tag republicadas com novo commit e novos hashes por solicitação explícita. Histórico Git preservado.

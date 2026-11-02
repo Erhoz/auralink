@@ -303,7 +303,9 @@ internal static class SetupProgram
             using(var zip=OpenPayload())Validate(zip);
             var form=new Form{Text="Instalar AuraLink "+Version,ClientSize=new Size(520,245),FormBorderStyle=FormBorderStyle.FixedDialog,MaximizeBox=false,StartPosition=FormStartPosition.CenterScreen,Font=new Font("Segoe UI",10)};
             form.Icon=Icon.ExtractAssociatedIcon(Application.ExecutablePath);
-            form.Controls.Add(new Label{Text="AuraLink "+Version,Font=new Font("Segoe UI",17,FontStyle.Bold),Location=new Point(22,18),AutoSize=true});
+            using(var brandIcon=new Icon(form.Icon,new Size(48,48)))
+                form.Controls.Add(new PictureBox{Image=brandIcon.ToBitmap(),Location=new Point(22,12),Size=new Size(48,48),SizeMode=PictureBoxSizeMode.Zoom});
+            form.Controls.Add(new Label{Text="AuraLink "+Version,Font=new Font("Segoe UI",17,FontStyle.Bold),Location=new Point(82,18),AutoSize=true});
             form.Controls.Add(new Label{Text="Integração não oficial com ASUS Aura Sync.\nPara o Razer Base Station Chroma original (1532:0F08).\n\nRequer Armoury Crate, .NET Framework 4.8 e driver Razer.\nInicia após instalar e ao entrar no Windows, na bandeja.\nEste beta não possui assinatura digital.",Location=new Point(22,63),Size=new Size(478,126)});
             var install=new Button{Text="Instalar",Location=new Point(270,202),Size=new Size(105,30)};
             install.Click+=(s,e)=>{try{Elevate("--install "+StartupTask.UserSid);form.Close();}catch(Exception error){MessageBox.Show(error.Message,"AuraLink");}};

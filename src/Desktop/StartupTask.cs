@@ -33,7 +33,12 @@ internal static class StartupTask
     private static dynamic Service()
     {dynamic service=Activator.CreateInstance(Type.GetTypeFromProgID("Schedule.Service"));service.Connect();return service;}
     private static dynamic Find(dynamic folder)
-    {try{return folder.GetTask(Name);}catch(COMException error){if(error.ErrorCode==unchecked((int)0x80070002))return null;throw;}}
+    {
+        try{return folder.GetTask(Name);}
+        // COM maps ERROR_FILE_NOT_FOUND to FileNotFoundException on this runtime.
+        // Preserve all other failures, including access denied and scheduler errors.
+        catch(Exception error){if(error.HResult==unchecked((int)0x80070002))return null;throw;}
+    }
     private static void Validate(dynamic task,string root,bool requireUser)
     {
         var xml=new XmlDocument();xml.LoadXml((string)task.Xml);

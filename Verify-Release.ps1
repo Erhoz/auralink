@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param()
 $ErrorActionPreference='Stop'
+& (Join-Path $PSScriptRoot 'Test-StartupTask.ps1')
 $version=(Get-Content (Join-Path $PSScriptRoot 'version.json') -Raw | ConvertFrom-Json).version
 $directory=Join-Path $PSScriptRoot ('artifacts\releases\'+$version)
 $work=Join-Path $directory ('inspection-'+[Guid]::NewGuid().ToString('N'))
@@ -44,5 +45,6 @@ $result=[ordered]@{Version=$version;SourceCommit=$manifest.sourceCommit;Files=$m
 $result.StartupTaskDefinitionPassed=$true;$result.IconsExtractedFromAllExecutables=$true
 $result.SchedulerDefinitionAcceptedWithoutRegistration=$true
 $result.SameBrandIconInAllExecutables=$true
+$result.MissingStartupTaskRegressionPassed=$true
 $result | ConvertTo-Json | Set-Content (Join-Path $directory 'package-verification.json') -Encoding UTF8
 $result | ConvertTo-Json
